@@ -1,0 +1,28 @@
+name: maisound
+description: A sound app for the world to enjoy music and sound effects. Oh yeah, and it's free! And open source!
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 0.0.1+1
+
+environment:
+  sdk: '>=2.19.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+  flutterflow_ui: ^0.2.0+1
+  font_awesome_flutter: ^10.1.0
+  google_fonts: ^4.0.3
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
