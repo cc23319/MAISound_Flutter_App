@@ -6,9 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:maisound/project_page.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
-
-
-
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -16,12 +13,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-
 class _HomePageState extends State<HomePage> {
-
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFF303047), 
+        backgroundColor: Color(0xFF303047),
         body: SafeArea(
           top: true,
           child: Column(
@@ -166,80 +159,93 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Container(
-                width: MediaQuery.sizeOf(context).width,
-                height: 238,
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 15,
-                      color: Color(0x33000000),
-                      offset: Offset(
-                        0,
-                        2,
+              // Use Expanded to make the container take the remaining space
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProjectPageWidget(),
                       ),
-                      spreadRadius: 25,
-                    )
-                  ],
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF3B3B58), Color(0xFF1F1F28)],
-                    stops: [0.5, 1],
-                    begin: AlignmentDirectional(0, -1),
-                    end: AlignmentDirectional(0, 1),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(25, 0, 0, 0),
-                      child: Container(
-                        width: 320,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF14141C),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(30),
-                            bottomRight: Radius.circular(30),
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity, // Take full width
+                    height: double.infinity, // Take full height
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 15,
+                          color: Color(0x33000000),
+                          offset: Offset(
+                            0,
+                            2,
                           ),
-                        ),
-                        child: Align(
-                          alignment: AlignmentDirectional(0, -1),
+                          spreadRadius: 25,
+                        )
+                      ],
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF3B3B58), Color(0xFF1F1F28)],
+                        stops: [0.5, 1],
+                        begin: AlignmentDirectional(0, -1),
+                        end: AlignmentDirectional(0, 1),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(25, 0, 0, 0),
                           child: Container(
                             width: 320,
-                            height: 40,
+                            height: 180,
                             decoration: BoxDecoration(
-                              color: Color(0xFF1D1D26),
+                              color: Color(0xFF14141C),
                               borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(0),
-                                bottomRight: Radius.circular(0),
+                                bottomLeft: Radius.circular(30),
+                                bottomRight: Radius.circular(30),
                                 topLeft: Radius.circular(30),
                                 topRight: Radius.circular(30),
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(0, 0),
-                              child: Text(
-                                'New Project',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: 'Readex Pro',
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      letterSpacing: 0,
-                                    ),
+                              alignment: AlignmentDirectional(0, -1),
+                              child: Container(
+                                width: 320,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF1D1D26),
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(0),
+                                    bottomRight: Radius.circular(0),
+                                    topLeft: Radius.circular(30),
+                                    topRight: Radius.circular(30),
+                                  ),
+                                ),
+                                child: Align(
+                                  alignment: AlignmentDirectional(0, 0),
+                                  child: Text(
+                                    'New Project',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          fontFamily: 'Readex Pro',
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          letterSpacing: 0,
+                                        ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
