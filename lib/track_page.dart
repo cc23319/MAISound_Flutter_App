@@ -1,5 +1,47 @@
 import 'package:flutter/material.dart';
 
+// Representa a Track
+class TrackWidget extends StatelessWidget {
+  final Color color = const Color.fromARGB(255, 0, 0, 0);
+  final double space = 10;
+
+  const TrackWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        double width = constraints.maxWidth;
+        double height = constraints.maxHeight;
+
+        // Ensure space is not larger than the dimensions to avoid infinity issues
+        double adjustedSpace = space;
+        if (width < space) adjustedSpace = width;
+        if (height < space) adjustedSpace = height;
+
+        var h = Container(width: 2, height: height, color: color);
+        var v = Container(width: width, height: 2, color: color);
+
+        return Stack(
+          children: <Widget>[
+            ...List.generate(
+              (width / adjustedSpace).round(),
+              (index) => Positioned(left: index * adjustedSpace, child: h),
+            ),
+            ...List.generate(
+              (height / adjustedSpace).round(),
+              (index) => Positioned(top: index * adjustedSpace, child: v),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 // Piano
 class PianoWidget extends StatelessWidget {
   final int numberOfKeys;
@@ -56,47 +98,41 @@ class PianoWidget extends StatelessWidget {
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              // White Key
-              Container(
-                // Largura da tecla
-                width: keyWidth,
+              GestureDetector(
+                onTap: () {
+                  print("Container clicked");
+                },
+                child:
+                    // White Key
+                    Container(
+                  // Largura da tecla
+                  width: keyWidth,
 
-                // Teclas pretas são menores que as brancas
-                // Teclas brancas adjacentes a espaços ausentes de tecla pretas são menores também
-                height: isSmaller ? keyHeight - 20 : keyHeight,
+                  // Teclas pretas são menores que as brancas
+                  // Teclas brancas adjacentes a espaços ausentes de tecla pretas são menores também
+                  height: isSmaller ? keyHeight - 20 : keyHeight,
 
-                // Margem entre as teclas
-                // margin: EdgeInsets.symmetric(vertical: 1),
+                  // Margem entre as teclas
+                  // margin: EdgeInsets.symmetric(vertical: 1),
 
-                // Decoração de uma tecla
-                decoration: BoxDecoration(
-                  color: !isBlack ? Colors.white : Colors.black,
-                  border:
-                      Border.all(color: Color.fromARGB(20, 0, 0, 0), width: 2),
-                ),
+                  // Decoração de uma tecla
+                  decoration: BoxDecoration(
+                    color: !isBlack ? Colors.white : Colors.black,
+                    border: Border.all(
+                        color: Color.fromARGB(20, 0, 0, 0), width: 2),
+                  ),
 
-                // A Tecla em sí
-                child: Center(
-                  child: Text(
-                    key, // Texto da tecla, é o nome da nota
-                    style: TextStyle(
-                        // Se a tecla for preta, o texto é branco, caso contrario o texto é preto
-                        color: Colors.black),
+                  // A Tecla em sí
+                  child: Center(
+                    child: Text(
+                      key, // Texto da tecla, é o nome da nota
+                      style: TextStyle(
+                          // Se a tecla for preta, o texto é branco, caso contrario o texto é preto
+                          color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-
-              // Adiciona a tecla preta se a atual nao for menor (não adjacente a uma tecla preta)
-              Positioned(
-                top: 0,
-                bottom: keyHeight * 0.6, // Adjust as necessary
-                left: (keyWidth * 0.8) / 2, // Adjust as necessary
-                child: Container(
-                  width: keyWidth * 0.8, // Adjust as necessary
-                  height: keyHeight * 0.6, // Adjust as necessary
-                  color: Colors.black,
-                ),
-              ),
+              )
             ],
           );
         } else {
@@ -150,6 +186,7 @@ class _TrackPage extends State<TrackPage> {
                   keyHeight: 80, // Altura da tecla branca
                 ),
               ),
+              TrackWidget()
             ])));
   }
 }
