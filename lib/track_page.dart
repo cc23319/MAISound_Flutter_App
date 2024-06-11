@@ -1,4 +1,11 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+
+AudioPlayer player = AudioPlayer();
+
+// Audios (TESTANDO)
+const alarmAudioPath = "sound_alarm.mp3";
+// player.play(alarmAudioPath);
 
 // Representa a Track
 class TrackWidget extends StatelessWidget {
