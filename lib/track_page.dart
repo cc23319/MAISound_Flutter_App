@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 // Representa a Track
 class TrackWidget extends StatelessWidget {
-  final Color color = const Color.fromARGB(255, 0, 0, 0);
-  final double space = 40;
+  final Color color = const Color.fromARGB(57, 68, 70, 94);
+  final double space = 34;
 
   const TrackWidget({
     Key? key,
@@ -27,10 +27,10 @@ class TrackWidget extends StatelessWidget {
 
         return Stack(
           children: <Widget>[
-            ...List.generate(
-              (width / adjustedSpace).round(),
-              (index) => Positioned(left: index * adjustedSpace, child: h),
-            ),
+            // ...List.generate(
+            //   (width / adjustedSpace).round(),
+            //   (index) => Positioned(left: index * adjustedSpace, child: h),
+            // ),
             ...List.generate(
               (height / adjustedSpace).round(),
               (index) => Positioned(top: index * adjustedSpace, child: v),
