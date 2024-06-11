@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // Representa a Track
 class TrackWidget extends StatelessWidget {
   final Color color = const Color.fromARGB(255, 0, 0, 0);
-  final double space = 10;
+  final double space = 40;
 
   const TrackWidget({
     Key? key,
@@ -186,7 +186,9 @@ class _TrackPage extends State<TrackPage> {
                   keyHeight: 80, // Altura da tecla branca
                 ),
               ),
-              TrackWidget()
+              Expanded(
+                child: TrackWidget(),
+              ),
             ])));
   }
 }
