@@ -1,20 +1,17 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:maisound/classes/instrument.dart';
 
-AudioPlayer player = AudioPlayer();
-
-// Audios (TESTANDO)
-const alarmAudioPath = "sound_alarm.mp3";
-// player.play(alarmAudioPath);
+// Carrega o instrumento
+final Instrument instrument = Instrument();
 
 // Representa a Track
 class TrackWidget extends StatelessWidget {
   final Color color = const Color.fromARGB(57, 68, 70, 94);
   final double space = 34;
-
+  
   const TrackWidget({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   @override
@@ -56,11 +53,11 @@ class PianoWidget extends StatelessWidget {
   final double keyHeight;
 
   const PianoWidget({
-    Key? key,
+    super.key,
     required this.numberOfKeys,
     required this.keyWidth,
     required this.keyHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +84,9 @@ class PianoWidget extends StatelessWidget {
     // As teclas brancas adjacentes a um espaço vazio (sem tecla preta) tem uma altura menor
     const smallerKeys = ["E", "F", "B", "C"];
 
+    // Oitava atualo
+    int currentOctave = 4;
+
     // Constroi uma lista com todas as teclas do piano
     return ListView.builder(
       itemCount: numberOfKeys,
@@ -100,6 +100,9 @@ class PianoWidget extends StatelessWidget {
         // Se é uma tecla menor
         bool isSmaller = smallerKeys.contains(key);
 
+        // Nome da nota com oitava
+        var noteName = key + (currentOctave + (index / keys.length).floor()).toString();
+
         // A gente vai pular as teclas pretas porque a gente ja adiciona elas junto com as brancas
         if (!isBlack) {
           return Stack(
@@ -107,7 +110,8 @@ class PianoWidget extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  print("Container clicked");
+                  instrument.playSound(noteName);
+                 // instrument.playSound("${key}5");
                 },
                 child:
                     // White Key
@@ -132,7 +136,7 @@ class PianoWidget extends StatelessWidget {
                   // A Tecla em sí
                   child: Center(
                     child: Text(
-                      key, // Texto da tecla, é o nome da nota
+                      noteName, // Texto da tecla, é o nome da nota
                       style: TextStyle(
                           // Se a tecla for preta, o texto é branco, caso contrario o texto é preto
                           color: Colors.black),
@@ -154,8 +158,8 @@ class PianoWidget extends StatelessWidget {
 // Barra de cima, com botão de play e tudo mais
 class ControlBar extends StatelessWidget {
   const ControlBar({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

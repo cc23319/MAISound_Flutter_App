@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:maisound/home_page.dart';
 import 'package:maisound/track_page.dart';
-import 'package:maisound/home_page2.dart';
 
 void main() {
   runApp(MyApp());

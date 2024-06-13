@@ -13,7 +13,7 @@ class MainButton extends StatelessWidget {
   final Icon icon;
 
   const MainButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.icon = const Icon(Icons.menu),
@@ -21,7 +21,7 @@ class MainButton extends StatelessWidget {
     this.textColor = const Color.fromARGB(255, 205, 205, 205),
     this.borderRadius = 15.0,
     this.elevation = 2.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +73,11 @@ class ProjectButton extends StatelessWidget {
   final Widget image;
 
   const ProjectButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.title,
     required this.image,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +115,7 @@ class ProjectButton extends StatelessWidget {
 
 // Pagina inicial
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
