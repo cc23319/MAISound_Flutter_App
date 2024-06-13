@@ -1,6 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For rootBundle
+// For rootBundle
 
 class Instrument {
   // Som de cada posição da tecla
