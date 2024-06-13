@@ -61,9 +61,9 @@ class Instrument {
   // Carrega os sons dos assets
   Future<void> loadSounds() async {
     // Adiciona os caminhos das notas manualmente
-    sounds["C4"] = "assets/instruments/piano/4-c.wav";
-    sounds["C#4"] = "assets/instruments/piano/4-cs.wav";
-    sounds["D4"] = "assets/instruments/piano/d.wav";
+    sounds["C4"] = "instruments/piano/4-c.wav";
+    sounds["C#4"] = "instruments/piano/4-cs.wav";
+    sounds["D4"] = "instruments/piano/4-d.wav";
     // Adicione o restante das notas conforme necessário
     // sounds["D#4"] = "assets/instruments/piano/ds4.wav";
     // ...
