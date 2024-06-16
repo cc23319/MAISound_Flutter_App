@@ -1,8 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:maisound/home_page.dart';
-import 'package:provider/provider.dart';
+//import 'package:maisound/home_page.dart';
+import 'package:maisound/track_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,8 +13,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Music Bench AI',
-      home: HomePage(),
+      title: 'MAISound',
+      home: TrackPage(),
     );
   }
 }
