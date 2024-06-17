@@ -296,7 +296,7 @@ class PianoWidget extends StatelessWidget {
     ];
 
     const smallerKeys = ["E", "F", "B", "C"];
-    int currentOctave = 3;
+    int currentOctave = 1;
 
     return ListView.builder(
       itemCount: numberOfKeys,
@@ -379,7 +379,7 @@ class _TrackPage extends State<TrackPage> {
             SizedBox(
               width: 300,
               child: PianoWidget(
-                numberOfKeys: 24,
+                numberOfKeys: 48,
                 keyWidth: 326,
                 keyHeight: 80,
               ),
