@@ -477,11 +477,11 @@ class _MusicPlayerHeaderState extends State<MusicPlayerHeader> {
             ),
             onPressed: () {
               Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProjectPageWidget(),
-                              ),
-                            );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProjectPageWidget(),
+                ),
+              );
             },
           ),
           const SizedBox(width: 16),
