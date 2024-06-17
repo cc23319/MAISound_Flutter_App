@@ -1,19 +1,218 @@
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
+import 'package:flutterflow_ui/flutterflow_ui.dart';
+import 'dart:async';
+
+import 'package:maisound/project_page.dart';
+export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 // Carrega o instrumento
 final Instrument instrument = Instrument();
 
-// Representa a Track
-class TrackWidget extends StatelessWidget {
-  final Color color = const Color.fromARGB(57, 68, 70, 94);
-  final double space = 34;
-  
-  const TrackWidget({
-    super.key,
+bool isPlaying = false;
+
+class Note {
+  final String noteName;
+  final double startTime;
+
+  Note({
+    required this.noteName,
+    required this.startTime,
   });
 
   @override
+  String toString() {
+    return "Note: $noteName, Start Time: $startTime";
+  }
+}
+
+class RecordingController {
+  List<Note> recordedNotes = [];
+  bool isRecording = false;
+  late double recordingStartTime;
+  Timer? _recordingTimer;
+  bool isPlaying = false;
+
+  // Variable to control the playback position
+  double playbackPosition = 0.0; 
+  Timer? _playbackTimer;
+
+  void recordNote(String noteName) {
+    if (isRecording) {
+      double currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
+      double noteTime = currentTime - recordingStartTime;
+      if (noteTime <= 15.0) { 
+        recordedNotes.add(Note(
+          noteName: noteName,
+          startTime: noteTime,
+        ));
+      }
+      print(isRecording);
+      print(recordedNotes.length);
+    }
+    notifyListeners();
+  }
+
+  void startRecording() {
+    recordedNotes.clear();
+    isRecording = true;
+    recordingStartTime = DateTime.now().millisecondsSinceEpoch / 1000;
+
+    // Start the timer to check the recording time
+    _recordingTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      double currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
+      double recordingTime = currentTime - recordingStartTime;
+      if (recordingTime >= 15.0) {
+        stopRecording();
+        timer.cancel(); // Stop the timer
+      }
+    });
+  }
+
+  void stopRecording() {
+    isRecording = false;
+    _recordingTimer?.cancel(); // Stop the timer
+  }
+
+  void playRecording(Function onPlaybackComplete) {
+    isPlaying = true;
+
+    if (recordedNotes.isEmpty) {
+      return;
+    }
+
+    // Sort notes by startTime
+    recordedNotes.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+    double startTime = recordedNotes.first.startTime;
+    
+    _playbackTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+        playbackPosition += 0.1;
+        notifyListeners(); // Notify listeners that playbackPosition has changed
+        if (playbackPosition >= 15.0) {
+          stopPlayback(); // Stop playback when it reaches the end
+        }
+      });
+
+    // Delay to align the playback with the first note's start time
+    double initialDelay = startTime * 1000;
+    Timer(Duration(milliseconds: initialDelay.round()), () {
+      // Start the timer to update the playback position
+      
+
+      for (Note note in recordedNotes) {
+        double delay = (note.startTime - startTime) * 1000; // Convert to milliseconds
+        print("delay = " + delay.toString() + " da nota: " + note.noteName);
+
+        Timer(Duration(milliseconds: delay.round()), () {
+          print(note.noteName);
+          instrument.playSound(note.noteName);
+        });
+      }
+
+      // Schedule the state change for when the last note finishes
+      double totalDuration = (recordedNotes.last.startTime - startTime) * 1000;
+      Timer(Duration(milliseconds: totalDuration.round()), () {
+        onPlaybackComplete();
+        stopPlayback();
+      });
+    });
+
+    notifyListeners();  
+  }
+
+  void stopPlayback() {
+    isPlaying = false;
+    _playbackTimer?.cancel();
+    playbackPosition = 0.0; // Reset playback position
+  }
+
+  final List<Function> _listeners = [];
+
+  void addListener(Function listener) {
+    _listeners.add(listener);
+  }
+
+  void removeListener(Function listener) {
+    _listeners.remove(listener);
+  }
+
+  void notifyListeners() {
+    for (var listener in _listeners) {
+      listener();
+    }
+  }
+}
+
+
+
+final RecordingController recordingController = RecordingController();
+
+
+
+class TrackWidget extends StatefulWidget {
+  final Color color = const Color.fromARGB(57, 68, 70, 94);
+  final double space;
+
+  const TrackWidget({super.key, required this.space});
+
+  @override
+  _TrackWidgetState createState() => _TrackWidgetState();
+}
+
+class _TrackWidgetState extends State<TrackWidget> {
+  List<Note> recordedNotes = recordingController.recordedNotes;
+  double playbackPosition = recordingController.playbackPosition; // Estado para a posição de reprodução
+  @override
+  void initState() {
+    super.initState();
+    recordingController.addListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    recordingController.removeListener(_updateState);
+    super.dispose();
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+   void updatePlaybackPosition() {
+    if (recordingController.isPlaying) {
+      playbackPosition = recordingController.playbackPosition;
+    }
+  }
+
+  // Mapear as notas para posições verticais
+  final Map<String, double> notePositions = {
+    'C3': 0.0,
+    'C#3': 1.0,
+    'D3': 2.0,
+    'D#3': 3.0,
+    'E3': 4.0,
+    'F3': 5.0,
+    'F#3': 6.0,
+    'G3': 7.0,
+    'G#3': 8.0,
+    'A3': 9.0,
+    'A#3': 10.0,
+    'B3': 11.0,
+    'C4': 12.0,
+    'C#4': 13.0,
+    'D4': 14.0,
+    'D#4': 15.0,
+    'E4': 16.0,
+    'F4': 17.0,
+    'F#4': 18.0,
+    'G4': 19.0,
+    'G#4': 20.0,
+    'A4': 21.0,
+    'A#4': 22.0,
+    'B4': 23.0,
+  };
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -21,23 +220,53 @@ class TrackWidget extends StatelessWidget {
         double width = constraints.maxWidth;
         double height = constraints.maxHeight;
 
-        // Ensure space is not larger than the dimensions to avoid infinity issues
-        double adjustedSpace = space;
-        if (width < space) adjustedSpace = width;
-        if (height < space) adjustedSpace = height;
+        // Verificar se o espaço é menor que o espaço entre as notas
+        double adjustedSpace = widget.space;
+        if (width < widget.space) adjustedSpace = width;
+        if (height < widget.space) adjustedSpace = height;
 
-        var h = Container(width: 2, height: height, color: color);
-        var v = Container(width: width, height: 2, color: color);
+        var h = Container(width: 2, height: height, color: widget.color);
+        var v = Container(width: width, height: 2, color: widget.color);
+
+        // Iniciar o timer para atualizar a posição de reprodução quando a reprodução começar
+        if (recordingController.isPlaying) {
+          updatePlaybackPosition();
+        }
 
         return Stack(
           children: <Widget>[
-            // ...List.generate(
-            //   (width / adjustedSpace).round(),
-            //   (index) => Positioned(left: index * adjustedSpace, child: h),
-            // ),
+            // Linhas horizontais
             ...List.generate(
-              (height / adjustedSpace).round(),
-              (index) => Positioned(top: index * adjustedSpace, child: v),
+              notePositions.length,
+              (index) => Positioned(
+                top: index * (adjustedSpace / 2),
+                child: v,
+              ),
+            ),
+            // Notas gravadas
+            ...recordingController.recordedNotes.map((note) {
+              double topPosition = notePositions[note.noteName]! * adjustedSpace / 2;
+              double leftPosition = note.startTime * (width / 15.0); // Calcular a posição horizontal
+
+              return Positioned(
+                top: topPosition,
+                left: leftPosition, // Posicionar as notas de acordo com o tempo
+                child: Container(
+                  width: 10,
+                  height: 40,
+                  color: Colors.red,
+                ),
+              );
+            }).toList(),
+            // Barra de reprodução (amarela)
+            Positioned(
+              top: 0,
+              left: playbackPosition * (width / 15.0), // Usar a posição de reprodução do estado
+              child: Container(
+                width: 2,
+                height: height,
+                color: Colors.yellow,
+              ),
             ),
           ],
         );
@@ -45,6 +274,7 @@ class TrackWidget extends StatelessWidget {
     );
   }
 }
+
 
 // Piano
 class PianoWidget extends StatelessWidget {
@@ -61,85 +291,42 @@ class PianoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Teclas do piano em ordem (Começando do lá e terminando em sol sustenido)
     const keys = [
-      "G#",
-      "G",
-      "F#",
-      "F",
-      "E",
-      "D#",
-      "D",
-      "C#",
-      "C",
-      "B",
-      "A#",
-      "A",
+      "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
     ];
 
-    // Implementar oitavas
-    // C5? D5? D#5?
-
-    // Teclas brancas menores
-    // As teclas brancas adjacentes a um espaço vazio (sem tecla preta) tem uma altura menor
     const smallerKeys = ["E", "F", "B", "C"];
+    int currentOctave = 3;
 
-    // Oitava atualo
-    int currentOctave = 4;
-
-    // Constroi uma lista com todas as teclas do piano
     return ListView.builder(
       itemCount: numberOfKeys,
       itemBuilder: (context, index) {
-        // Pega o nome da nota atual
         var key = keys[index % keys.length];
-
-        // Se é uma nota preta ou não (Caso ela contenha o simbolo do sustenido)
         bool isBlack = key.contains("#");
-
-        // Se é uma tecla menor
         bool isSmaller = smallerKeys.contains(key);
-
-        // Nome da nota com oitava
         var noteName = key + (currentOctave + (index / keys.length).floor()).toString();
 
-        // A gente vai pular as teclas pretas porque a gente ja adiciona elas junto com as brancas
         if (!isBlack) {
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
               GestureDetector(
                 onTap: () {
+                  print("Tapped note: $noteName");
                   instrument.playSound(noteName);
-                 // instrument.playSound("${key}5");
+                  recordingController.recordNote(noteName);
                 },
-                child:
-                    // White Key
-                    Container(
-                  // Largura da tecla
+                child: Container(
                   width: keyWidth,
-
-                  // Teclas pretas são menores que as brancas
-                  // Teclas brancas adjacentes a espaços ausentes de tecla pretas são menores também
                   height: isSmaller ? keyHeight - 20 : keyHeight,
-
-                  // Margem entre as teclas
-                  // margin: EdgeInsets.symmetric(vertical: 1),
-
-                  // Decoração de uma tecla
                   decoration: BoxDecoration(
                     color: !isBlack ? Colors.white : Colors.black,
-                    border: Border.all(
-                        color: Color.fromARGB(20, 0, 0, 0), width: 2),
+                    border: Border.all(color: Color.fromARGB(20, 0, 0, 0), width: 2),
                   ),
-
-                  // A Tecla em sí
                   child: Center(
                     child: Text(
-                      noteName, // Texto da tecla, é o nome da nota
-                      style: TextStyle(
-                          // Se a tecla for preta, o texto é branco, caso contrario o texto é preto
-                          color: Colors.black),
+                      noteName,
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ),
@@ -147,7 +334,6 @@ class PianoWidget extends StatelessWidget {
             ],
           );
         } else {
-          // Retorna um sizedbox vazio
           return SizedBox();
         }
       },
@@ -157,9 +343,7 @@ class PianoWidget extends StatelessWidget {
 
 // Barra de cima, com botão de play e tudo mais
 class ControlBar extends StatelessWidget {
-  const ControlBar({
-    super.key,
-  });
+  const ControlBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -179,27 +363,197 @@ class _TrackPage extends State<TrackPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: "Piano Track",
+      title: "New Project(1)",
+      theme: ThemeData(
+        scaffoldBackgroundColor: Color.fromARGB(255, 48, 48, 71),
+      ),
+      home: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(100),
+          child: MusicPlayerHeader(
+            instrument: instrument,
+          ),
+        ),
+        body: Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: PianoWidget(
+                numberOfKeys: 24,
+                keyWidth: 326,
+                keyHeight: 80,
+              ),
+            ),
+            Expanded(
+              child: TrackWidget(
+                space: 80, // Define o espaço das linhas horizontais para a altura das teclas
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-        // Tema do aplicativo (Cores etc...)
-        theme:
-            ThemeData(scaffoldBackgroundColor: Color.fromARGB(255, 48, 48, 71)),
-        home: Scaffold(
-            appBar: AppBar(title: Text('Piano Widget')),
-            // Linha
-            body: Row(children: [
-              SizedBox(
-                width: 300,
-                //height: 500,
-                child: PianoWidget(
-                  numberOfKeys: 24, // Change the number of keys as needed
-                  keyWidth: 326, // Largura da tecla branca
-                  keyHeight: 80, // Altura da tecla branca
-                ),
-              ),
-              Expanded(
-                child: TrackWidget(),
-              ),
-            ])));
+class MusicPlayerHeader extends StatefulWidget {
+  final Instrument instrument;
+
+  const MusicPlayerHeader({Key? key, required this.instrument}) : super(key: key);
+
+  @override
+  State<MusicPlayerHeader> createState() => _MusicPlayerHeaderState();
+}
+
+class _MusicPlayerHeaderState extends State<MusicPlayerHeader> {
+  bool isRecording = false;
+  bool isPlaying = false;
+
+ @override
+  void initState() {
+    super.initState();
+  }
+
+
+
+
+
+  void toggleRecording() {
+    setState(() {
+      isRecording = !isRecording;
+      if (isRecording) {
+        recordingController.startRecording();
+      } else {
+        recordingController.stopRecording();
+      }
+    });
+  }
+
+  void handlePlaybackComplete() {
+    setState(() {
+      isPlaying = false;
+    });
+  }
+
+  void togglePlayback() {
+    setState(() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        recordingController.playRecording(handlePlaybackComplete);
+
+      } else {
+        recordingController.stopRecording();// Parar a reprodução
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 100,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF1D1D25), Color(0xFF0E0E15)],
+          stops: [0, 1],
+          begin: AlignmentDirectional(0, -1),
+          end: AlignmentDirectional(0, 1),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FlutterFlowIconButton(
+            borderColor: const Color(0xFF242436),
+            borderRadius: 10,
+            borderWidth: 1,
+            buttonSize: 40,
+            fillColor: const Color(0xFF4B4B5B),
+            icon: const Icon(
+              Icons.menu,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProjectPageWidget(),
+                              ),
+                            );
+            },
+          ),
+          const SizedBox(width: 16),
+          FlutterFlowIconButton(
+            borderColor: const Color(0xFF242436),
+            borderRadius: 10,
+            borderWidth: 1,
+            buttonSize: 40,
+            fillColor: const Color(0xFF4B4B5B),
+            icon: const Icon(
+              Icons.fast_rewind,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              recordingController.isPlaying = false;
+              setState(() {
+                recordingController.playbackPosition = 0.0;
+                isPlaying = false;
+              });
+
+            },
+          ),
+          const SizedBox(width: 16),
+          FlutterFlowIconButton(
+            borderColor: const Color(0xFF242436),
+            borderRadius: 10,
+            borderWidth: 1,
+            buttonSize: 40,
+            fillColor: const Color(0xFF4B4B5B),
+            icon: Icon(
+              isPlaying ? Icons.pause : Icons.play_arrow,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: togglePlayback,
+          ),
+          const SizedBox(width: 16),
+          FlutterFlowIconButton(
+            borderColor: const Color(0xFF242436),
+            borderRadius: 10,
+            borderWidth: 1,
+            buttonSize: 40,
+            fillColor: const Color(0xFF4B4B5B),
+            icon: const Icon(
+              Icons.loop,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              recordingController.recordedNotes.clear();
+            },
+          ),
+          const SizedBox(width: 16),
+          FlutterFlowIconButton(
+            borderColor: const Color(0xFF242436),
+            borderRadius: 10,
+            borderWidth: 1,
+            buttonSize: 40,
+            fillColor: const Color(0xFF4B4B5B),
+            icon: Icon(
+              isRecording ? Icons.stop : Icons.mic,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              toggleRecording();
+              print('Recording toggled: $isRecording');
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

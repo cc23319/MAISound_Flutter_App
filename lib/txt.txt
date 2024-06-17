@@ -1,0 +1,141 @@
+void recordNote(String noteName) {
+    if (isRecording) {
+      double currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
+      double noteTime = currentTime - recordingStartTime;
+      if (noteTime <= 15.0) { // Verificar se a nota está dentro dos 15 segundos
+        recordedNotes.add(Note(
+          noteName: noteName,
+          startTime: noteTime,
+        ));
+      }
+      print(isRecording);
+      print(recordedNotes.length);
+    }
+  }
+
+
+
+class TrackWidget extends StatefulWidget {
+  final Color color = const Color.fromARGB(57, 68, 70, 94);
+  final double space;
+
+  const TrackWidget({super.key, required this.space});
+
+  @override
+  _TrackWidgetState createState() => _TrackWidgetState();
+}
+
+class _TrackWidgetState extends State<TrackWidget> {
+  List<Note> recordedNotes = recordingController.recordedNotes;
+  double playbackPosition = recordingController.playbackPosition; // Estado para a posição de reprodução
+  @override
+  void initState() {
+    super.initState();
+    recordingController.addListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    recordingController.removeListener(_updateState);
+    super.dispose();
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+   void updatePlaybackPosition() {
+    if (recordingController.isPlaying) {
+      playbackPosition = recordingController.playbackPosition;
+    }
+  }
+
+  // Mapear as notas para posições verticais
+  final Map<String, double> notePositions = {
+    'C3': 0.0,
+    'C#3': 1.0,
+    'D3': 2.0,
+    'D#3': 3.0,
+    'E3': 4.0,
+    'F3': 5.0,
+    'F#3': 6.0,
+    'G3': 7.0,
+    'G#3': 8.0,
+    'A3': 9.0,
+    'A#3': 10.0,
+    'B3': 11.0,
+    'C4': 12.0,
+    'C#4': 13.0,
+    'D4': 14.0,
+    'D#4': 15.0,
+    'E4': 16.0,
+    'F4': 17.0,
+    'F#4': 18.0,
+    'G4': 19.0,
+    'G#4': 20.0,
+    'A4': 21.0,
+    'A#4': 22.0,
+    'B4': 23.0,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        double width = constraints.maxWidth;
+        double height = constraints.maxHeight;
+
+        // Verificar se o espaço é menor que o espaço entre as notas
+        double adjustedSpace = widget.space;
+        if (width < widget.space) adjustedSpace = width;
+        if (height < widget.space) adjustedSpace = height;
+
+        var h = Container(width: 2, height: height, color: widget.color);
+        var v = Container(width: width, height: 2, color: widget.color);
+
+        // Iniciar o timer para atualizar a posição de reprodução quando a reprodução começar
+        if (recordingController.isPlaying) {
+          updatePlaybackPosition();
+        }
+
+        return Stack(
+          children: <Widget>[
+            // Linhas horizontais
+            ...List.generate(
+              notePositions.length,
+              (index) => Positioned(
+                top: index * (adjustedSpace / 2),
+                child: v,
+              ),
+            ),
+            // Notas gravadas
+            ...recordingController.recordedNotes.map((note) {
+              double topPosition = notePositions[note.noteName]! * adjustedSpace / 2;
+              double leftPosition = note.startTime * (width / 15.0); // Calcular a posição horizontal
+
+              return Positioned(
+                top: topPosition,
+                left: leftPosition, // Posicionar as notas de acordo com o tempo
+                child: Container(
+                  width: 10,
+                  height: 40,
+                  color: Colors.red,
+                ),
+              );
+            }).toList(),
+            // Barra de reprodução (amarela)
+            Positioned(
+              top: 0,
+              left: playbackPosition * (width / 15.0), // Usar a posição de reprodução do estado
+              child: Container(
+                width: 2,
+                height: height,
+                color: Colors.yellow,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

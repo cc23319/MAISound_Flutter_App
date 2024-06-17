@@ -61,9 +61,43 @@ class Instrument {
   // Carrega os sons dos assets
   Future<void> loadSounds() async {
     // Adiciona os caminhos das notas manualmente
+    sounds["C3"] = "instruments/piano/3-c.wav";
+    sounds["C#3"] = "instruments/piano/3-cs.wav";
+    sounds["D3"] = "instruments/piano/3-d.wav";
+    sounds["D#3"] = "instruments/piano/3-ds.wav";
+    sounds["E3"] = "instruments/piano/3-e.wav";
+    sounds["F3"] = "instruments/piano/3-f.wav";
+    sounds["F#3"] = "instruments/piano/3-fs.wav";
+    sounds["G3"] = "instruments/piano/3-g.wav";
+    sounds["G#3"] = "instruments/piano/3-gs.wav";
+    sounds["A3"] = "instruments/piano/3-a.wav";
+    sounds["A#3"] = "instruments/piano/3-as.wav";
+    sounds["B3"] = "instruments/piano/3-b.wav";
     sounds["C4"] = "instruments/piano/4-c.wav";
     sounds["C#4"] = "instruments/piano/4-cs.wav";
     sounds["D4"] = "instruments/piano/4-d.wav";
+    sounds["D#4"] = "instruments/piano/4-ds.wav";
+    sounds["E4"] = "instruments/piano/4-e.wav";
+    sounds["F4"] = "instruments/piano/4-f.wav";
+    sounds["F#4"] = "instruments/piano/4-fs.wav";
+    sounds["G4"] = "instruments/piano/4-g.wav";
+    sounds["G#4"] = "instruments/piano/4-gs.wav";
+    sounds["A4"] = "instruments/piano/4-a.wav";
+    sounds["A#4"] = "instruments/piano/4-as.wav";
+    sounds["B4"] = "instruments/piano/4-b.wav";
+    sounds["C5"] = "instruments/piano/5-c.wav";
+    sounds["C#5"] = "instruments/piano/5-cs.wav";
+    sounds["D5"] = "instruments/piano/5-d.wav";
+    sounds["D#5"] = "instruments/piano/5-ds.wav";
+    sounds["E5"] = "instruments/piano/5-e.wav";
+    sounds["F5"] = "instruments/piano/5-f.wav";
+    sounds["F#5"] = "instruments/piano/5-fs.wav";
+    sounds["G5"] = "instruments/piano/5-g.wav";
+    sounds["G#5"] = "instruments/piano/5-gs.wav";
+    sounds["A5"] = "instruments/piano/5-a.wav";
+    sounds["A#5"] = "instruments/piano/5-as.wav";
+    sounds["B5"] = "instruments/piano/5-b.wav";
+
     // Adicione o restante das notas conforme necessário
     // sounds["D#4"] = "assets/instruments/piano/ds4.wav";
     // ...
