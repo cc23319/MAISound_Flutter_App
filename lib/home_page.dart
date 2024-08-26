@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:maisound/project_page.dart';
+import "package:shared_preferences/shared_preferences.dart";
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,27 +13,53 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  // Lista de projetos criados
+  List<String> projects = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProjects();
+  }
+
+  // Carrega os projetos salvos:
+  void _loadProjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      projects = prefs.getStringList('projects') ?? [];
+    });
+  }
+
+  // Salva os projetos:
+  void _saveProjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('projects', projects);
+  } 
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
+      child: Scaffold( 
         key: scaffoldKey,
         backgroundColor: Color(0xFF303047),
-        body: SafeArea(
+        body: SafeArea(  
           top: true,
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Botões no topo da página
               Expanded(
+                flex: 3,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Botão de Menu
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -46,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                           hoverIconColor: Colors.white,
                           icon: FaIcon(
                             FontAwesomeIcons.bars,
-                            color: FlutterFlowTheme.of(context).alternate,
+                            color: Colors.white,
                             size: 30,
                           ),
                           onPressed: () {
@@ -58,16 +85,11 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'Menu',
                             textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .titleMedium
-                                .override(
-                                  fontFamily: 'Readex Pro',
-                                  letterSpacing: 0,
-                                ),
                           ),
                         ),
                       ],
                     ),
+                    // Botão de Novo Projeto
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -80,16 +102,14 @@ class _HomePageState extends State<HomePage> {
                           hoverIconColor: Colors.white,
                           icon: FaIcon(
                             FontAwesomeIcons.plus,
-                            color: FlutterFlowTheme.of(context).alternate,
+                            color: Colors.white,
                             size: 30,
                           ),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProjectPageWidget(),
-                              ),
-                            );
+                            setState(() {
+                              // Adiciona um novo projeto à lista
+                              projects.add('Projeto ${projects.length + 1}');
+                            });
                           },
                         ),
                         Padding(
@@ -97,16 +117,11 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'New Project',
                             textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .titleMedium
-                                .override(
-                                  fontFamily: 'Readex Pro',
-                                  letterSpacing: 0,
-                                ),
                           ),
                         ),
                       ],
                     ),
+                    // Botão de Carregar Projeto
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -119,11 +134,11 @@ class _HomePageState extends State<HomePage> {
                           hoverIconColor: Colors.white,
                           icon: Icon(
                             Icons.upload_file,
-                            color: FlutterFlowTheme.of(context).alternate,
+                            color: Colors.white,
                             size: 30,
                           ),
                           onPressed: () {
-                            print('MenuButton pressed ...');
+                            print('Load Project button pressed...');
                           },
                         ),
                         Padding(
@@ -131,12 +146,6 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'Load Project',
                             textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .titleMedium
-                                .override(
-                                  fontFamily: 'Readex Pro',
-                                  letterSpacing: 0,
-                                ),
                           ),
                         ),
                       ],
@@ -156,92 +165,41 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              // Use Expanded to make the container take the remaining space
+              
+              // Lista de Projetos Criados
               Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProjectPageWidget(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity, // Take full width
-                    height: double.infinity, // Take full height
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 15,
-                          color: Color(0x33000000),
-                          offset: Offset(
-                            0,
-                            2,
-                          ),
-                          spreadRadius: 25,
-                        )
-                      ],
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF3B3B58), Color(0xFF1F1F28)],
-                        stops: [0.5, 1],
-                        begin: AlignmentDirectional(0, -1),
-                        end: AlignmentDirectional(0, 1),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(25, 0, 0, 0),
-                          child: Container(
-                            width: 320,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF14141C),
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(30),
-                                bottomRight: Radius.circular(30),
-                                topLeft: Radius.circular(30),
-                                topRight: Radius.circular(30),
-                              ),
+                flex: 2,
+                child: Scrollbar(
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: projects.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProjectPageWidget(projectName: projects[index]),
                             ),
-                            child: Align(
-                              alignment: AlignmentDirectional(0, -1),
-                              child: Container(
-                                width: 320,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF1D1D26),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(0),
-                                    bottomRight: Radius.circular(0),
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: AlignmentDirectional(0, 0),
-                                  child: Text(
-                                    'New Project',
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily: 'Readex Pro',
-                                          color: Colors.white,
-                                          fontSize: 22,
-                                          letterSpacing: 0,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          );
+                        },
+                        child: Container(
+                          width: MediaQuery.sizeOf(context).width * 0.3,
+                          height:MediaQuery.sizeOf(context).width * 0.3,
+                          margin: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF14141C),
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: Center(
+                            child: Text(
+                              projects[index],
+                              style: TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                          )
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),

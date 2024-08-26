@@ -479,7 +479,7 @@ class _MusicPlayerHeaderState extends State<MusicPlayerHeader> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProjectPageWidget(),
+                  builder: (context) => ProjectPageWidget(projectName: "New Project"),
                 ),
               );
             },

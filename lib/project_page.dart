@@ -4,7 +4,9 @@ import 'package:flutterflow_ui/flutterflow_ui.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 class ProjectPageWidget extends StatefulWidget {
-  const ProjectPageWidget({super.key});
+  final String projectName;
+
+  const ProjectPageWidget({super.key, required this.projectName});
 
   @override
   State<ProjectPageWidget> createState() => _ProjectPageWidgetState();
@@ -47,6 +49,10 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: const Color(0xFF303047),
+        appBar: AppBar(
+          title: Text(widget.projectName),
+          backgroundColor: const Color(0xFF1D1D25),
+        ),
         body: Stack(
           children: [
             CustomPaint(
