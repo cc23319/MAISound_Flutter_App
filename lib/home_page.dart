@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:maisound/project_page.dart';
-import "package:shared_preferences/shared_preferences.dart";
+import 'package:shared_preferences/shared_preferences.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,8 +14,54 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   
-  // Lista de projetos criados
+  // Lista de projetos criados:
   List<String> projects = [];
+
+  //Metodo da caixa de dialogo para inserir o nome do projeto:
+  Future<void> _showAddProjectDialog() async {
+    String? projectName;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // O usuário deve inserir o nome ou cancelar.
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Project Name'),
+          content: TextField(
+            autofocus: true,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: 'Project Name',
+            ),
+            onChanged: (value) {
+              projectName = value;
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha a caixa de diálogo sem criar o projeto.
+              },
+            ),
+            ElevatedButton(
+              child: Text('Create'),
+              onPressed: () {
+                if (projectName != null && projectName!.isNotEmpty) {
+                  setState(() {
+                    projects.add(projectName!); // Adiciona um novo projeto à lista.
+                  });
+
+                  _saveProjects(); // Salva o projeto criado.
+
+                  Navigator.of(context).pop(); // Fecha a caixa de diálogo.
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -107,8 +153,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           onPressed: () {
                             setState(() {
-                              // Adiciona um novo projeto à lista
-                              projects.add('Projeto ${projects.length + 1}');
+                              // Abre a caixa de dialogo
+                              _showAddProjectDialog();
                             });
                           },
                         ),
@@ -195,6 +241,7 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               projects[index],
                               style: TextStyle(color: Colors.white, fontSize: 20),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           )
                         ),

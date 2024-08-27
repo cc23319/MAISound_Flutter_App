@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutterflow_ui/flutterflow_ui.dart';
+import 'package:maisound/home_page.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 class ProjectPageWidget extends StatefulWidget {
@@ -103,6 +104,12 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                                   ),
                                   onPressed: () {
                                     print('MenuBtn pressed ...');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomePage(),
+                                      ),
+                                    );
                                   },
                                 ),
                                 Slider(
