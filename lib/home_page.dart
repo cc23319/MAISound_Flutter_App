@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'Menu',
                             textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
@@ -163,6 +164,7 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'New Project',
                             textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
@@ -192,6 +194,7 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'Load Project',
                             textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
