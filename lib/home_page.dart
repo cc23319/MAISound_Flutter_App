@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   // Lista de projetos criados:
   List<String> projects = [];
 
@@ -40,7 +40,8 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(); // Fecha a caixa de diálogo sem criar o projeto.
+                Navigator.of(context)
+                    .pop(); // Fecha a caixa de diálogo sem criar o projeto.
               },
             ),
             ElevatedButton(
@@ -48,13 +49,46 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 if (projectName != null && projectName!.isNotEmpty) {
                   setState(() {
-                    projects.add(projectName!); // Adiciona um novo projeto à lista.
+                    projects
+                        .add(projectName!); // Adiciona um novo projeto à lista.
                   });
 
                   _saveProjects(); // Salva o projeto criado.
 
                   Navigator.of(context).pop(); // Fecha a caixa de diálogo.
                 }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Método da caixa de diálogo para confirmar a exclusão do projeto:
+  Future<void> _showDeleteConfirmationDialog(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // O usuário deve confirmar.
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Project'),
+          content: Text('Are you sure you want to delete this project?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha a caixa de diálogo.
+              },
+            ),
+            ElevatedButton(
+              child: Text('Delete'),
+              onPressed: () {
+                setState(() {
+                  projects.removeAt(index); // Remove o projeto da lista.
+                  _saveProjects(); // Salva os projetos Atualizados.
+                });
+                Navigator.of(context).pop(); // Fecha a caixa de diálogo.
               },
             ),
           ],
@@ -81,16 +115,16 @@ class _HomePageState extends State<HomePage> {
   void _saveProjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList('projects', projects);
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold( 
+      child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Color(0xFF303047),
-        body: SafeArea(  
+        body: SafeArea(
           top: true,
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -214,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              
+
               // Lista de Projetos Criados
               Expanded(
                 flex: 2,
@@ -228,25 +262,41 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ProjectPageWidget(projectName: projects[index]),
+                              builder: (context) => ProjectPageWidget(
+                                  projectName: projects[index]),
                             ),
                           );
                         },
                         child: Container(
                           width: MediaQuery.sizeOf(context).width * 0.3,
-                          height:MediaQuery.sizeOf(context).width * 0.3,
+                          height: MediaQuery.sizeOf(context).width * 0.3,
                           margin: EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Color(0xFF14141C),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Center(
-                            child: Text(
-                              projects[index],
-                              style: TextStyle(color: Colors.white, fontSize: 20),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          )
+                          child: Stack(
+                            children: [
+                              Center(
+                                child: Text(
+                                  projects[index],
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Positioned(
+                                top: 14,
+                                right: 14,
+                                child: IconButton(
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(index);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
