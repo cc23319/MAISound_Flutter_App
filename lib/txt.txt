@@ -139,3 +139,45 @@ class _TrackWidgetState extends State<TrackWidget> {
     );
   }
 }
+
+LIST VIEW BUILDER
+return ListView.builder(
+      itemCount: numberOfKeys,
+      itemBuilder: (context, index) {
+        var key = keys[index % keys.length];
+        bool isBlack = key.contains("#");
+        bool isSmaller = smallerKeys.contains(key);
+        var noteName = key + (currentOctave + (index / keys.length).floor()).toString();
+
+        if (!isBlack) {
+          return Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  print("Tapped note: $noteName");
+                  instrument.playSound(noteName);
+                  recordingController.recordNote(noteName);
+                },
+                child: Container(
+                  width: keyWidth,
+                  height: isSmaller ? keyHeight - 20 : keyHeight,
+                  decoration: BoxDecoration(
+                    color: !isBlack ? Colors.white : Colors.black,
+                    border: Border.all(color: Color.fromARGB(20, 0, 0, 0), width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      noteName,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          );
+        } else {
+          return SizedBox();
+        }
+      },
+    );
