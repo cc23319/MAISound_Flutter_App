@@ -39,17 +39,17 @@ class _InstrumentSidebarState extends State<InstrumentSidebar> {
               shrinkWrap: true,
               children: [
                 ListTile(
-                  title: Text("Placeholder Instrument 1"),
+                  title: Text("Piano"),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _addInstrumentContainer("Placeholder 1", Icons.music_note, Colors.blue);
+                    _addInstrumentContainer("Piano", Icons.music_note, Colors.blue);
                   },
                 ),
                 ListTile(
-                  title: Text("Placeholder Instrument 2"),
+                  title: Text("Violino"),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _addInstrumentContainer("Placeholder 2", Icons.audiotrack, Colors.green);
+                    _addInstrumentContainer("Violino", Icons.audiotrack, Colors.green);
                   },
                 ),
               ],
@@ -79,7 +79,7 @@ class _InstrumentSidebarState extends State<InstrumentSidebar> {
   }
 }
 
-class _InstrumentContainer extends StatelessWidget {
+class _InstrumentContainer extends StatefulWidget {
   final String instrumentName;
   final IconData icon;
   final Color color;
@@ -89,6 +89,13 @@ class _InstrumentContainer extends StatelessWidget {
     required this.icon,
     required this.color,
   });
+
+  @override
+  _InstrumentContainerState createState() => _InstrumentContainerState();
+}
+
+class _InstrumentContainerState extends State<_InstrumentContainer> {
+  double _sliderValue = 5; // Initial value for the slider
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +111,7 @@ class _InstrumentContainer extends StatelessWidget {
           width: double.infinity,
           height: 100,
           decoration: BoxDecoration(
-            color: color,
+            color: widget.color,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               width: 0,
@@ -114,23 +121,27 @@ class _InstrumentContainer extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Icon(icon, color: Colors.white, size: 40),
+                child: Icon(widget.icon, color: Colors.white, size: 40),
               ),
               Expanded(
                 child: Text(
-                  instrumentName,
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  widget.instrumentName,
+                  style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Slider(
-                  value: 5,
+                  value: _sliderValue,
                   min: 0,
                   max: 10,
                   activeColor: Colors.white,
                   inactiveColor: Colors.white38,
-                  onChanged: (value) {},
+                  onChanged: (newValue) {
+                    setState(() {
+                      _sliderValue = newValue; // Update slider value
+                    });
+                  },
                 ),
               ),
             ],

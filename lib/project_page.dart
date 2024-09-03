@@ -53,42 +53,45 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
               size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
               painter: _GridPainter(),
             ),
+
             SafeArea(
-              top: true,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top control bar
-                  _buildTopControlBar(context),
-
-                  InstrumentSidebar(),
-
-                  // Main content area
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        // Sidebar for instrument tracks
-                        
-                        _buildSidebar(),
-
-                        // Right content area (currently empty)
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [],
-                          ),
+            top: true,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top control bar
+                _buildTopControlBar(context),
+                
+                // Main content area with sidebar and expanded content
+                Expanded(
+                  child: Row(
+                    children: [
+                      // Sidebar for instrument tracks
+                      Container(
+                        width: 400, // Set a fixed width for the sidebar
+                        color: Color(0xFF1D1D26), // Background color for the sidebar
+                        child: InstrumentSidebar(),
+                      ),
+                      
+                      // Right content area
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              ],
+            )
+          )
+
+            
           ],
         ),
       ),
