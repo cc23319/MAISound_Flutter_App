@@ -315,7 +315,7 @@ class _TrackPage extends State<TrackPage> {
           children: [
             SizedBox(
               width: 300,
-              child: PianoWidget(octaves: [2,3],),
+              child: PianoWidget(octaves: [2,3].reversed.toList(),),
             ),
             Expanded(
               child: TrackWidget(

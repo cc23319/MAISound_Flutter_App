@@ -2,6 +2,7 @@ import 'dart:js_util';
 
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
+import 'package:maisound/track_page.dart';
 
 class PianoWidget extends StatelessWidget {
   final List octaves;
@@ -14,12 +15,12 @@ class PianoWidget extends StatelessWidget {
 
     return Scaffold(
         body: Column(
-          children: [
-            for (var octave in octaves)
-              for (var key in keys)
-                PianoButton(noteName: key, currentOctave: octave)
-          ],
-        ));
+      children: [
+        for (var octave in octaves)
+          for (var key in keys)
+            PianoButton(noteName: key, currentOctave: octave)
+      ],
+    ));
   }
 }
 
@@ -69,8 +70,12 @@ class PianoButton extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: style,
-                  onPressed: () =>
-                      instrument.playSound(noteName + currentOctave.toString()),
+                  onPressed: () {
+                    instrument.playSound(noteName + currentOctave.toString());
+                    print(noteName + currentOctave.toString());
+                    recordingController
+                        .recordNote(noteName + currentOctave.toString());
+                  },
                   child: null,
                 ),
               ),
@@ -78,14 +83,26 @@ class PianoButton extends StatelessWidget {
             Positioned(
               top: -25.0,
               child: Container(
-                height: 75.0,
-                width: 250.0,
+                height: 40.0,
+                width: 190.0,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Colors.black,
+                    side: BorderSide.none,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(10.0),
+                        topRight: Radius.circular(10.0),
+                      ),
+                    ),
                   ),
-                  onPressed: () => instrument
-                      .playSound(noteName + "#" + currentOctave.toString()),
+                  onPressed: () {
+                    instrument
+                        .playSound(noteName + "#" + currentOctave.toString());
+                    print(noteName + "#" + currentOctave.toString());
+                    recordingController
+                        .recordNote(noteName + "#" + currentOctave.toString());
+                  },
                   child: null,
                 ),
               ),
@@ -114,8 +131,12 @@ class PianoButton extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               style: style,
-              onPressed: () =>
-                  instrument.playSound(noteName + currentOctave.toString()),
+              onPressed: () {
+                instrument.playSound(noteName + currentOctave.toString());
+                print(noteName + currentOctave.toString());
+                recordingController
+                    .recordNote(noteName + currentOctave.toString());
+              },
               child: null,
             ),
           ),

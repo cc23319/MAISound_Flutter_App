@@ -148,7 +148,7 @@ return ListView.builder(
         bool isBlack = key.contains("#");
         bool isSmaller = smallerKeys.contains(key);
         var noteName = key + (currentOctave + (index / keys.length).floor()).toString();
-
+o
         if (!isBlack) {
           return Stack(
             alignment: Alignment.bottomCenter,
