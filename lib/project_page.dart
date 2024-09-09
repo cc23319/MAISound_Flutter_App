@@ -3,11 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'ui/instrument_container.dart';
 import 'package:flutterflow_ui/flutterflow_ui.dart';
+import 'package:maisound/home_page.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 // Main Project Page Widget
 class ProjectPageWidget extends StatefulWidget {
-  const ProjectPageWidget({super.key});
+  final String projectName;
+
+  const ProjectPageWidget({super.key, required this.projectName});
 
   @override
   State<ProjectPageWidget> createState() => _ProjectPageWidgetState();
@@ -46,6 +49,10 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: const Color(0xFF303047),
+        appBar: AppBar(
+          title: Text(widget.projectName),
+          backgroundColor: const Color(0xFF1D1D25),
+        ),
         body: Stack(
           children: [
             // Grid background for the main content area
@@ -270,6 +277,194 @@ Widget _buildTopControlBar(BuildContext context) {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Align(
+                    alignment: AlignmentDirectional(0, 0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF1D1D25), Color(0xFF0E0E15)],
+                                stops: [0, 1],
+                                begin: AlignmentDirectional(0, -1),
+                                end: AlignmentDirectional(0, 1),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FlutterFlowIconButton(
+                                  borderColor: const Color(0xFF242436),
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  buttonSize: 40,
+                                  fillColor: const Color(0xFF4B4B5B),
+                                  icon: const Icon(
+                                    Icons.menu,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    print('MenuBtn pressed ...');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomePage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Slider(
+                                  activeColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                  inactiveColor:
+                                      FlutterFlowTheme.of(context).alternate,
+                                  min: 0,
+                                  max: 10,
+                                  value: _volume,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      _volume = newValue;
+                                    });
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  borderColor: const Color(0xFF242436),
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  buttonSize: 40,
+                                  fillColor: const Color(0xFF4B4B5B),
+                                  icon: const Icon(
+                                    Icons.fast_rewind,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    print('RewindBtn pressed ...');
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  borderColor: const Color(0xFF242436),
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  buttonSize: 40,
+                                  fillColor: const Color(0xFF4B4B5B),
+                                  icon: _isPlaying
+                                      ? const Icon(
+                                          Icons.pause_circle,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      : const Icon(
+                                          Icons.play_circle,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPlaying = !_isPlaying;
+                                    });
+                                    print('PlayBtn pressed ...');
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  borderColor: const Color(0xFF242436),
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  buttonSize: 40,
+                                  fillColor: const Color(0xFF4B4B5B),
+                                  icon: const Icon(
+                                    Icons.loop,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    print('LoopBtn pressed ...');
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                width: 202,
+                                height: 100,
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF1D1D26),
+                                      Color(0xFF131319)
+                                    ],
+                                    stops: [0, 1],
+                                    begin: AlignmentDirectional(0, -1),
+                                    end: AlignmentDirectional(0, 1),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      0, 10, 0, 0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      ..._soundContainers, 
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(0, 20, 0, 0),
+                                        child: FlutterFlowIconButton(
+                                          borderColor: const Color(0xFF242436),
+                                          borderRadius: 10,
+                                          borderWidth: 1,
+                                          buttonSize: 40,
+                                          fillColor: const Color(0xFF4B4B5B),
+                                          icon: const Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                          onPressed: () {
+                                            _addSoundContainer();
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [],
+                          ),
+                        ),
+                      ],
+
                   ..._soundContainers, // List of sound containers
 
                   // Add sound container button
@@ -283,6 +478,7 @@ Widget _buildTopControlBar(BuildContext context) {
                       fillColor: const Color(0xFF4B4B5B),
                       icon: const Icon(Icons.add, color: Colors.white, size: 24),
                       onPressed: _addSoundContainer,
+
                     ),
                   ),
                 ],
