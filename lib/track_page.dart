@@ -4,6 +4,7 @@ import 'package:flutterflow_ui/flutterflow_ui.dart';
 import 'dart:async';
 
 import 'package:maisound/project_page.dart';
+import 'package:maisound/widget_piano.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
 // Carrega o instrumento
@@ -276,70 +277,6 @@ class _TrackWidgetState extends State<TrackWidget> {
 }
 
 
-// Piano
-class PianoWidget extends StatelessWidget {
-  final int numberOfKeys;
-  final double keyWidth;
-  final double keyHeight;
-
-  const PianoWidget({
-    super.key,
-    required this.numberOfKeys,
-    required this.keyWidth,
-    required this.keyHeight,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const keys = [
-      "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-    ];
-
-    const smallerKeys = ["E", "F", "B", "C"];
-    int currentOctave = 1;
-
-    return ListView.builder(
-      itemCount: numberOfKeys,
-      itemBuilder: (context, index) {
-        var key = keys[index % keys.length];
-        bool isBlack = key.contains("#");
-        bool isSmaller = smallerKeys.contains(key);
-        var noteName = key + (currentOctave + (index / keys.length).floor()).toString();
-
-        if (!isBlack) {
-          return Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  print("Tapped note: $noteName");
-                  instrument.playSound(noteName);
-                  recordingController.recordNote(noteName);
-                },
-                child: Container(
-                  width: keyWidth,
-                  height: isSmaller ? keyHeight - 20 : keyHeight,
-                  decoration: BoxDecoration(
-                    color: !isBlack ? Colors.white : Colors.black,
-                    border: Border.all(color: Color.fromARGB(20, 0, 0, 0), width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      noteName,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          );
-        } else {
-          return SizedBox();
-        }
-      },
-    );
-  }
-}
 
 // Barra de cima, com botão de play e tudo mais
 class ControlBar extends StatelessWidget {
@@ -378,11 +315,7 @@ class _TrackPage extends State<TrackPage> {
           children: [
             SizedBox(
               width: 300,
-              child: PianoWidget(
-                numberOfKeys: 48,
-                keyWidth: 326,
-                keyHeight: 80,
-              ),
+              child: PianoWidget(octaves: [2,3].reversed.toList(),),
             ),
             Expanded(
               child: TrackWidget(

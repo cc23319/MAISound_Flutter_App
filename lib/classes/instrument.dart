@@ -61,6 +61,30 @@ class Instrument {
   // Carrega os sons dos assets
   Future<void> loadSounds() async {
     // Adiciona os caminhos das notas manualmente
+    sounds["C1"] = "instruments/piano/3-c.wav";
+    sounds["C#1"] = "instruments/piano/3-cs.wav";
+    sounds["D1"] = "instruments/piano/3-d.wav";
+    sounds["D#1"] = "instruments/piano/3-ds.wav";
+    sounds["E1"] = "instruments/piano/3-e.wav";
+    sounds["F1"] = "instruments/piano/3-f.wav";
+    sounds["F#1"] = "instruments/piano/3-fs.wav";
+    sounds["G1"] = "instruments/piano/3-g.wav";
+    sounds["G#1"] = "instruments/piano/3-gs.wav";
+    sounds["A1"] = "instruments/piano/3-a.wav";
+    sounds["A#1"] = "instruments/piano/3-as.wav";
+    sounds["B1"] = "instruments/piano/3-b.wav";
+    sounds["C2"] = "instruments/piano/3-c.wav";
+    sounds["C#2"] = "instruments/piano/3-cs.wav";
+    sounds["D2"] = "instruments/piano/3-d.wav";
+    sounds["D#2"] = "instruments/piano/3-ds.wav";
+    sounds["E2"] = "instruments/piano/3-e.wav";
+    sounds["F2"] = "instruments/piano/3-f.wav";
+    sounds["F#2"] = "instruments/piano/3-fs.wav";
+    sounds["G2"] = "instruments/piano/3-g.wav";
+    sounds["G#2"] = "instruments/piano/3-gs.wav";
+    sounds["A2"] = "instruments/piano/3-a.wav";
+    sounds["A#2"] = "instruments/piano/3-as.wav";
+    sounds["B2"] = "instruments/piano/3-b.wav";
     sounds["C3"] = "instruments/piano/3-c.wav";
     sounds["C#3"] = "instruments/piano/3-cs.wav";
     sounds["D3"] = "instruments/piano/3-d.wav";
