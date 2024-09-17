@@ -5,6 +5,7 @@ class Instrument {
   // Som de cada posição da tecla
   Map<String, String> sounds = {};
   late AudioPlayer player;
+  String name = "Teste";
 
   // Checa se um caractere é um número
   bool isNumeric(String s) {
