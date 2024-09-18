@@ -1,11 +1,21 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 // For rootBundle
 
 class Instrument {
   // Som de cada posição da tecla
   Map<String, String> sounds = {};
   late AudioPlayer player;
-  String name = "Teste";
+  double volume = 0.5;
+
+  // Usado na parte de UI
+  String name = "Piano";
+  Color color = Color.fromARGB(255, 60, 104, 248);
+  
+
+  // Track, som de cada track deste insturmento
+  // Tracks: [Track 0: [NoteName, Time, Duration], Track ...]
+  late List tracks;
 
   // Checa se um caractere é um número
   bool isNumeric(String s) {
@@ -57,6 +67,7 @@ class Instrument {
   Instrument() {
     loadSounds();
     player = AudioPlayer();
+    tracks = List.empty();
   }
 
   // Carrega os sons dos assets

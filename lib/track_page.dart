@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:flutterflow_ui/flutterflow_ui.dart';
-import 'dart:async';
-
 import 'package:maisound/project_page.dart';
+import 'dart:async';
 import 'package:maisound/widget_piano.dart';
 export 'package:flutterflow_ui/flutterflow_ui.dart';
 
