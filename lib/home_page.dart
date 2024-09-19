@@ -1,3 +1,4 @@
+import 'package:maisound/cadastro_page.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

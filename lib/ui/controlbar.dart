@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maisound/cadastro_page.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/track_page.dart';
 

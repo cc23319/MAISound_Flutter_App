@@ -4,9 +4,8 @@ import 'package:maisound/classes/track.dart';
 import 'package:maisound/home_page.dart';
 import 'package:maisound/login_page.dart';
 import 'package:maisound/project_page.dart';
-import 'package:maisound/track_page.dart';
 //import 'package:maisound/project_page.dart';
-import 'package:maisound/track_page2.dart';
+import 'package:maisound/track_page.dart';
 
 void main() {
   runApp(MyApp());
