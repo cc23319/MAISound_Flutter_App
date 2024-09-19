@@ -33,8 +33,8 @@ class _ControlBarWidget extends State<ControlBarWidget> {
 
     int? value = int.tryParse(text);
     if (value != null) {
-      if (value < 0) {
-        _controller.text = '0';
+      if (value < 1) {
+        _controller.text = '1';
         _controller.selection = TextSelection.fromPosition(
           TextPosition(offset: _controller.text.length),
         );
@@ -190,36 +190,19 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
-                        decoration: const InputDecoration(
-                          border: InputBorder.none, // Remove the underline
-                        ),
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.center,
-                        controller: _controller,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: "Courier",
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (text) {
-                          int? value = int.tryParse(text);
-                          if (value != null) {
-                            if (value < 0) {
-                              _controller.text = '0';
-                              _controller.selection =
-                                  TextSelection.fromPosition(
-                                TextPosition(offset: _controller.text.length),
-                              );
-                            } else if (value > 999) {
-                              _controller.text = '999';
-                              _controller.selection =
-                                  TextSelection.fromPosition(
-                                TextPosition(offset: _controller.text.length),
-                              );
-                            }
-                          }
-                        }),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none, // Remove the underline
+                      ),
+                      textAlign: TextAlign.center,
+                      textAlignVertical: TextAlignVertical.center,
+                      controller: _controller,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: "Courier",
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
                   ),
                 ),
               ],
