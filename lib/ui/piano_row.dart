@@ -127,26 +127,30 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
       children: [
         Column(
           children: [
-            // Timestamp marker at the top
-            TimestampMarker(onPositionChanged: _updateMarkerPosition),
+            // Marcador
+            Padding(
+              padding: EdgeInsets.only(left: 200),
+              child: TimestampMarker(onPositionChanged: _updateMarkerPosition),
+            ),
 
-            // Horizontal layout with piano on the left and grid on the right
+            // Layout com piano ao lado esquerdo e grid ao lado direito
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Vertical piano notes
+                  // Notas verticais
                   SizedBox(
-                    width: 197, // Fixed width for the piano keys
+                    width: 200, // Largura das teclas brancas
                     child: Stack(
                       children: [
-                        // White keys
+                        // Notas Brancas
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: _notes.reversed
                               .where((note) => !note.values.first)
                               .map((note) {
-                            // Adjust height for B and C
+                            // Notas brancas que são menores que o normal
+                            // Isso serve para que a GRID fique alinhada corretamente
                             double height = (note.keys.first == 'B3' ||
                                     note.keys.first == 'C3' ||
                                     note.keys.first == 'E3' ||
@@ -158,7 +162,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                               isBlack: false,
                               height: height,
 
-                              // Note functions
+                              // Funções da nota
                               onPressed: () => _onNotePressed(note.keys.first),
                               onReleased: () =>
                                   _onNoteReleased(note.keys.first),
@@ -166,13 +170,13 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                           }).toList(),
                         ),
 
-                        // Black keys
+                        // Notas pretas
                         Positioned.fill(
                           child: Column(
                             children: _notes.reversed
                                 .where((note) => note.values.first)
                                 .map((note) {
-                              // Offset based on whether the black key follows E or B
+                              // Offset com base em algumas nota branca (Algumas notas pretas tem mais espaços entre elas)
                               double topPadding =
                                   (note.keys.first.startsWith('C#') ||
                                           note.keys.first.startsWith('F#'))
@@ -209,21 +213,20 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                     ),
                   ),
 
-                  // Note grid extending to the right
+                  // Grid se extendendo a direita
                   Expanded(
                     child: Container(
-                      color: Colors
-                          .transparent, // Optional background color for the grid area
+                      color: Colors.transparent, // Background da grid
                       child: GridView.builder(
                         itemCount: _notes.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1, // 1 column for the grid
+                          crossAxisCount: 1, // 1 coluna para cada grid
                           mainAxisExtent: 40,
                           //childAspectRatio: 1, // Adjust for note height
                         ),
                         itemBuilder: (context, index) {
                           return Container(
-                            height: 56, // Fixed height for each row in the grid
+                            height: 56, // Altura fixa para cada linha da grid
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
@@ -252,7 +255,8 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
             ),
           ],
         ),
-        getLine(_markerPosition, screenHeight), // Marker line
+        // Linha da seta/marcador
+        getLine(_markerPosition, screenHeight, 200),
       ],
     );
   }

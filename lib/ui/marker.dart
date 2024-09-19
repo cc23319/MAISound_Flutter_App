@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 
 // Retorna a linha que estende do marcador
-Widget getLine(_markerPosition, screenHeight) {
+Widget getLine(_markerPosition, screenHeight, xoffset) {
   // Thin line extending from marker to the bottom of the screen
   return Positioned(
-    left: _markerPosition - 0.5, // Align the line with the marker's position
+    left: _markerPosition -
+        0.5 +
+        xoffset, // Align the line with the marker's position
     top: 15, // Start just below the marker
     child: Container(
       width: 1, // Thin line

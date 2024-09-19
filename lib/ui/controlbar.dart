@@ -10,6 +10,45 @@ class ControlBarWidget extends StatefulWidget {
 }
 
 class _ControlBarWidget extends State<ControlBarWidget> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: '130');
+
+    // Add a listener to the controller
+    _controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  // Texto do bpm mudou
+  void _onTextChanged() {
+    String text = _controller.text;
+
+    int? value = int.tryParse(text);
+    if (value != null) {
+      if (value < 0) {
+        _controller.text = '0';
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      } else if (value > 999) {
+        _controller.text = '999';
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      }
+
+      BPM = value.toDouble();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -30,6 +69,7 @@ class _ControlBarWidget extends State<ControlBarWidget> {
           children: [
             // Placeholder buttons on the left
             Row(
+              // Menu
               children: [
                 FlutterFlowIconButton(
                   borderColor: const Color(0xFF242436),
@@ -63,6 +103,7 @@ class _ControlBarWidget extends State<ControlBarWidget> {
             // Rewind, Play/Pause, Loop buttons and time indicator
             Row(
               children: [
+                // Botão de voltar
                 FlutterFlowIconButton(
                   borderColor: const Color(0xFF242436),
                   borderRadius: 10,
@@ -73,6 +114,8 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                       color: Colors.white, size: 24),
                   onPressed: () {},
                 ),
+
+                // Botão de pausar
                 FlutterFlowIconButton(
                   borderColor: const Color(0xFF242436),
                   borderRadius: 10,
@@ -90,6 +133,8 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                     });
                   },
                 ),
+
+                // Botão de loop
                 FlutterFlowIconButton(
                   borderColor: const Color(0xFF242436),
                   borderRadius: 10,
@@ -100,7 +145,7 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   onPressed: () {},
                 ),
 
-                // Time display
+                // Tempo
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Container(
@@ -117,6 +162,64 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                         fontFamily: "Courier",
                       ),
                     ),
+                  ),
+                ),
+
+                // BPM TEXT
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: DefaultTextStyle(
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontFamily: "Courier",
+                      ),
+                      child: Text('BPM')),
+                ),
+
+                // BPM
+                // Tempo
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Container(
+                    height: 40,
+                    width: 60,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextField(
+                        decoration: const InputDecoration(
+                          border: InputBorder.none, // Remove the underline
+                        ),
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                        controller: _controller,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: "Courier",
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (text) {
+                          int? value = int.tryParse(text);
+                          if (value != null) {
+                            if (value < 0) {
+                              _controller.text = '0';
+                              _controller.selection =
+                                  TextSelection.fromPosition(
+                                TextPosition(offset: _controller.text.length),
+                              );
+                            } else if (value > 999) {
+                              _controller.text = '999';
+                              _controller.selection =
+                                  TextSelection.fromPosition(
+                                TextPosition(offset: _controller.text.length),
+                              );
+                            }
+                          }
+                        }),
                   ),
                 ),
               ],

@@ -243,7 +243,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
             ),
           ],
         ),
-        getLine(_markerPosition, screenHeight)
+        getLine(_markerPosition, screenHeight, 0)
       ],
     );
   }
