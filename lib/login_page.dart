@@ -54,7 +54,6 @@ class MainButton extends StatelessWidget {
   }
 }
 
-// Página de Login
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -66,85 +65,87 @@ class LoginPage extends StatelessWidget {
       home: Scaffold(
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo or Title
-              Text(
-                'Login',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 48.0),
-
-              // Email Field
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-
-              // Password Field
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Senha',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-              ),
-              SizedBox(height: 24.0),
-
-              // Login Button
-              MainButton(
-                text: "Login",
-                icon: Icon(Icons.login),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                    ),
-                  );
-                },
-              ),
-
-              SizedBox(height: 16.0),
-
-              // "Não tem uma conta? Cadastre-se" Link
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CadastroPage()),
-                  );
-                },
-                child: Center(
-                  child: Text(
-                    "Não tem uma conta? Cadastre-se",
+          child: Center( // Centraliza o conteúdo
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 400), // Limita a largura
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center, // Centraliza na horizontal
+                children: [
+                  // Logo or Title
+                  Text(
+                    'Login',
                     style: TextStyle(
                       color: Colors.white,
-                      decoration: TextDecoration.underline,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 48.0),
+
+                  // Email Field
+                  TextField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'Email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 16.0),
+
+                  // Password Field
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'Senha',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24.0),
+
+                  // Login Button
+                  MainButton(
+                    text: "Login",
+                    icon: Icon(Icons.login),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+
+                  // "Não tem uma conta? Cadastre-se" Link
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CadastroPage()),
+                      );
+                    },
+                    child: Text(
+                      "Não tem uma conta? Cadastre-se",
+                      style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
