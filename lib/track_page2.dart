@@ -4,18 +4,15 @@ import 'package:maisound/classes/track.dart';
 import 'package:maisound/ui/controlbar.dart';
 import 'package:maisound/ui/piano_row.dart';
 
-
-
 // Mostra uma track visualmente (Classe Track)
 class TrackPageWidget extends StatefulWidget {
-  const TrackPageWidget({super.key});//, required Track track});
+  const TrackPageWidget({super.key}); //, required Track track});
 
   @override
   _TrackPageWidgetState createState() => _TrackPageWidgetState();
 }
 
 class _TrackPageWidgetState extends State<TrackPageWidget> {
-
   // Debug
   late Instrument inst = Instrument();
   late Track track = Track(inst);
@@ -28,15 +25,19 @@ class _TrackPageWidgetState extends State<TrackPageWidget> {
         children: [
           // Barra de controle no topo
           ControlBarWidget(),
-          
-          // Piano Row without unnecessary Container
+
+          // Piano Row expanded to take full horizontal space
           Expanded(
-            child: PianoRowWidget(track: track),
-          ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: PianoRowWidget(track: track),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
-
-
 }

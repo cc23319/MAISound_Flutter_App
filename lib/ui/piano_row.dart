@@ -52,7 +52,9 @@ class _NoteWidgetState extends State<NoteWidget> {
         height: widget.height,
         decoration: BoxDecoration(
           color: _isPressed
-              ? (widget.isBlack ? Color.fromARGB(255, 29, 29, 29) : Colors.white70)
+              ? (widget.isBlack
+                  ? Color.fromARGB(255, 29, 29, 29)
+                  : Colors.white70)
               : (widget.isBlack ? Colors.black : Colors.white),
           border: Border.all(color: Colors.black),
           borderRadius: BorderRadius.circular(4),
@@ -74,7 +76,7 @@ class _NoteWidgetState extends State<NoteWidget> {
 class PianoRowWidget extends StatefulWidget {
   final Track track;
   const PianoRowWidget({super.key, required this.track});
-  
+
   @override
   _PianoRowWidgetState createState() => _PianoRowWidgetState();
 }
@@ -91,11 +93,20 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
   // Lista de notas na vertical
   final List<Map<String, bool>> _notes = [
-    {'C3': false}, {'C#3': true}, {'D3': false}, {'D#3': true}, {'E3': false},
-    {'F3': false}, {'F#3': true}, {'G3': false}, {'G#3': true}, {'A3': false},
-    {'A#3': true}, {'B3': false},
+    {'C3': false},
+    {'C#3': true},
+    {'D3': false},
+    {'D#3': true},
+    {'E3': false},
+    {'F3': false},
+    {'F#3': true},
+    {'G3': false},
+    {'G#3': true},
+    {'A3': false},
+    {'A#3': true},
+    {'B3': false},
   ];
-  
+
   // Quando alguma nota é pressionada esta função e chamada
   void _onNotePressed(String note) {
     widget.track.instrument.playSound(note);
@@ -109,117 +120,142 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Stack(
-    children: [
-      Column(
-        children: [
-          // Timestamp marker at the top
-          TimestampMarker(onPositionChanged: _updateMarkerPosition),
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
 
-          // Vertical piano notes
-          SizedBox(
-            width: 300,
-            child: Stack(
-              children: [
-                // White keys
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: _notes.reversed.where((note) => !note.values.first).map((note) {
-                    // Adjust height for B and C
-                    double height = (note.keys.first == 'B3' || note.keys.first == 'C3' || note.keys.first == 'E3' || note.keys.first == 'F3') ? 60 : 80;
-                    return NoteWidget(
-                      note: note.keys.first,
-                      isBlack: false,
-                      height: height,
+    return Stack(
+      children: [
+        Column(
+          children: [
+            // Timestamp marker at the top
+            TimestampMarker(onPositionChanged: _updateMarkerPosition),
 
-                      // Note functions
-                      onPressed: () => _onNotePressed(note.keys.first),
-                      onReleased: () => _onNoteReleased(note.keys.first),
-                    );
-                  }).toList(),
-                ),
+            // Horizontal layout with piano on the left and grid on the right
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Vertical piano notes
+                  SizedBox(
+                    width: 197, // Fixed width for the piano keys
+                    child: Stack(
+                      children: [
+                        // White keys
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: _notes.reversed
+                              .where((note) => !note.values.first)
+                              .map((note) {
+                            // Adjust height for B and C
+                            double height = (note.keys.first == 'B3' ||
+                                    note.keys.first == 'C3' ||
+                                    note.keys.first == 'E3' ||
+                                    note.keys.first == 'F3')
+                                ? 60
+                                : 80;
+                            return NoteWidget(
+                              note: note.keys.first,
+                              isBlack: false,
+                              height: height,
 
-                // Black keys
-                Positioned.fill(
-                  child: Column(
-                    children: _notes.reversed.where((note) => note.values.first).map((note) {
-                      // Offset based on whether the black key follows E or B
-                      double topPadding = (note.keys.first.startsWith('C#') || note.keys.first.startsWith('F#'))
-                          ? 40
-                          : 80; // Default padding
-                      if (note.keys.first.startsWith('F#') || note.keys.first.startsWith('G#') || note.keys.first.startsWith('A#')) {
-                        topPadding = 40; // Adjust padding for black notes after B/E
-                      }
+                              // Note functions
+                              onPressed: () => _onNotePressed(note.keys.first),
+                              onReleased: () =>
+                                  _onNoteReleased(note.keys.first),
+                            );
+                          }).toList(),
+                        ),
 
-                      return Padding(
-                        padding: EdgeInsets.only(top: topPadding),
-                        child: SizedBox(
-                          height: 40, // Black keys remain smaller
-                          child: NoteWidget(
-                            note: note.keys.first,
-                            isBlack: true,
-                            width: 197,
+                        // Black keys
+                        Positioned.fill(
+                          child: Column(
+                            children: _notes.reversed
+                                .where((note) => note.values.first)
+                                .map((note) {
+                              // Offset based on whether the black key follows E or B
+                              double topPadding =
+                                  (note.keys.first.startsWith('C#') ||
+                                          note.keys.first.startsWith('F#'))
+                                      ? 40
+                                      : 80; // Default padding
+                              if (note.keys.first.startsWith('F#') ||
+                                  note.keys.first.startsWith('G#') ||
+                                  note.keys.first.startsWith('A#')) {
+                                topPadding =
+                                    40; // Adjust padding for black notes after B/E
+                              }
 
-                            // Note functions
-                            onPressed: () => _onNotePressed(note.keys.first),
-                            onReleased: () => _onNoteReleased(note.keys.first),
+                              return Padding(
+                                padding: EdgeInsets.only(top: topPadding),
+                                child: SizedBox(
+                                  height: 40, // Black keys remain smaller
+                                  child: NoteWidget(
+                                    note: note.keys.first,
+                                    isBlack: true,
+                                    width:
+                                        197 / 1.5, // Fixed width for black keys
+                                    // Note functions
+                                    onPressed: () =>
+                                        _onNotePressed(note.keys.first),
+                                    onReleased: () =>
+                                        _onNoteReleased(note.keys.first),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ],
+                    ),
                   ),
-                ),
 
-                
-                // Note Grid
-                // Positioned.fill(
-                //   child: Column(
-                //     children: [
-                //       Expanded(
-                //         child: GridView.builder(
-                //           itemCount: _notes.length,
-                //           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //             crossAxisCount: 1,  // One column for grid
-                //             childAspectRatio: 7.5,  // Adjust to match note height
-                //           ),
-                //           itemBuilder: (context, index) {
-                //             return Container(
-                //               height: 40, // Fixed height for each grid row
-                //               decoration: BoxDecoration(
-                //                 border: Border(
-                //                   bottom: BorderSide(color: Colors.grey, width: 0.5),
-                //                 ),
-                //               ),
-                //               child: Row(
-                //                 children: [
-                //                   // Add any content you want inside each grid row
-                //                   Expanded(
-                //                     child: Container(
-                //                       color: Color.fromARGB(54, 5, 5, 5), // Grid background
-                //                     ),
-                //                   ),
-                //                 ],
-                //               ),
-                //             );
-                //           },
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // )
-
-
-
-              ],
+                  // Note grid extending to the right
+                  Expanded(
+                    child: Container(
+                      color: Colors
+                          .transparent, // Optional background color for the grid area
+                      child: GridView.builder(
+                        itemCount: _notes.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1, // 1 column for the grid
+                          mainAxisExtent: 40,
+                          //childAspectRatio: 1, // Adjust for note height
+                        ),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            height: 56, // Fixed height for each row in the grid
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                    color: const Color.fromARGB(255, 0, 0, 0),
+                                    width: 0.5),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                // Add content for each grid row, if needed
+                                Expanded(
+                                  child: Container(
+                                    color: Color.fromARGB(54, 5, 5,
+                                        5), // Background color of the grid
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
+          ],
+        ),
+        getLine(_markerPosition, screenHeight), // Marker line
+      ],
+    );
+  }
 }
 
 class NoteGridWidget extends StatefulWidget {
@@ -230,13 +266,10 @@ class NoteGridWidget extends StatefulWidget {
 }
 
 class _NoteGridWidgetState extends State<NoteGridWidget> {
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Row(children: [
-
-      ]),
+      child: Row(children: []),
     );
   }
 }

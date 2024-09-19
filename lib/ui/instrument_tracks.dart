@@ -56,7 +56,8 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                             itemBuilder: (context, index) {
                               final instrument = instruments[index];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Stack(
                                   children: [
                                     Material(
@@ -69,14 +70,18 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                         height: 120,
                                         padding: const EdgeInsets.all(16.0),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
                                                   instrument.name,
-                                                  style: TextStyle(fontSize: 18),
+                                                  style:
+                                                      TextStyle(fontSize: 18),
                                                 ),
                                               ],
                                             ),
@@ -85,7 +90,8 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                               min: 0,
                                               max: 100,
                                               divisions: 10,
-                                              label: '${instrument.volume.round()}',
+                                              label:
+                                                  '${instrument.volume.round()}',
                                               onChanged: (newValue) {
                                                 setState(() {
                                                   instrument.volume = newValue;
@@ -142,12 +148,15 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                           child: Stack(
                             children: [
                               Container(
-                                height: 120, // Match the height with the first column
+                                height:
+                                    120, // Match the height with the first column
                                 color: instrument.color.withOpacity(0.1),
-                                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Center(),
                               ),
-                              for (var track in main_tracks.where((track) => track[0] == index))
+                              for (var track in main_tracks
+                                  .where((track) => track[0] == index))
                                 Positioned(
                                   left: track[1], // Set the position
                                   child: Draggable<Map<String, dynamic>>(
@@ -156,8 +165,10 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                       width: track[2] - track[1],
                                       height: 120,
                                       decoration: BoxDecoration(
-                                        color: instrument.color.withOpacity(0.6),
-                                        border: Border.all(color: Colors.black, width: 1),
+                                        color:
+                                            instrument.color.withOpacity(0.6),
+                                        border: Border.all(
+                                            color: Colors.black, width: 1),
                                       ),
                                       child: Column(
                                         children: [
@@ -168,7 +179,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                             child: Center(
                                               child: Text(
                                                 '${instrument.name} #${index + 1}',
-                                                style: TextStyle(color: Colors.white, fontSize: 14),
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14),
                                               ),
                                             ),
                                           ),
@@ -183,8 +196,10 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                       width: track[2] - track[1],
                                       height: 120,
                                       decoration: BoxDecoration(
-                                        color: instrument.color.withOpacity(0.6),
-                                        border: Border.all(color: Colors.black, width: 1),
+                                        color:
+                                            instrument.color.withOpacity(0.6),
+                                        border: Border.all(
+                                            color: Colors.black, width: 1),
                                       ),
                                       child: Column(
                                         children: [
@@ -195,7 +210,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                             child: Center(
                                               child: Text(
                                                 '${instrument.name} #${index + 1}',
-                                                style: TextStyle(color: Colors.white, fontSize: 14),
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14),
                                               ),
                                             ),
                                           ),
@@ -209,7 +226,8 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                       setState(() {
                                         // Update the start position after dragging
                                         track[1] = details.offset.dx;
-                                        track[2] = track[1] + 100; // Recalculate end
+                                        track[2] =
+                                            track[1] + 100; // Recalculate end
                                       });
                                     },
                                   ),
@@ -225,16 +243,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
             ),
           ],
         ),
-        // Thin line extending from marker to the bottom of the screen
-        Positioned(
-          left: _markerPosition - 0.5, // Align the line with the marker's position
-          top: 15, // Start just below the marker
-          child: Container(
-            width: 1, // Thin line
-            height: screenHeight - 30, // Extend to the bottom of the screen
-            color: Colors.green, // Line color (same as the marker)
-          ),
-        ),
+        getLine(_markerPosition, screenHeight)
       ],
     );
   }

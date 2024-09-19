@@ -79,14 +79,14 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   borderWidth: 1,
                   buttonSize: 40,
                   fillColor: const Color(0xFF4B4B5B),
-                  icon: playingCurrently
+                  icon: playingCurrently.value
                       ? const Icon(Icons.pause_circle,
                           color: Colors.white, size: 24)
                       : const Icon(Icons.play_circle,
                           color: Colors.white, size: 24),
                   onPressed: () {
                     setState(() {
-                      playingCurrently = !playingCurrently;
+                      playingCurrently.value = !playingCurrently.value;
                     });
                   },
                 ),

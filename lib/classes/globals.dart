@@ -1,5 +1,6 @@
 library MAISound.globals;
 
+import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/recorder.dart';
 
@@ -7,16 +8,15 @@ import 'package:maisound/classes/recorder.dart';
 String username = "user";
 
 // Config
-String project_name  = "Generic";
+String project_name = "Generic";
 double master_volume = 1;
-double BPM           = 130; // Influencia o quão rapido o valor de timestamp aumenta
-double timestamp     = 0.00; // Timestamp da musica em geral (Não é de uma track individual)
-bool playingCurrently = false;
+double BPM = 130; // Influencia o quão rapido o valor de timestamp aumenta
+double timestamp =
+    0.00; // Timestamp da musica em geral (Não é de uma track individual)
+ValueNotifier<bool> playingCurrently = ValueNotifier<bool>(false);
 
 // Lista de instrumentos do projeto
-List instruments = [
-  Instrument()
-];
+List instruments = [Instrument()];
 
 // Estruturação das tracks do projeto
 List main_tracks = [];

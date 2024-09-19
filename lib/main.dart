@@ -18,7 +18,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false, title: 'MAISound', home: TrackPageWidget());
+        debugShowCheckedModeBanner: false,
+        title: 'MAISound',
+        home: TrackPageWidget());
   }
 }
 
