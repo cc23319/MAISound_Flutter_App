@@ -229,10 +229,6 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                 .map((note) {
                               // Offset com base em algumas nota branca (Algumas notas pretas tem mais espaços entre elas)
                               double topPadding = 80;
-                                  // (note.keys.first.startsWith('C#') ||
-                                  //         note.keys.first.startsWith('F#'))
-                                  //     ? 40
-                                  //     : 80; // Default padding
                               if (note.keys.first.startsWith('F#') ||
                                   note.keys.first.startsWith('G#') ||
 
@@ -242,7 +238,8 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                               }
 
                               // HACK
-                              // The first black key top to bottom, has a smaller padding
+                              // A primeira nota preta de cima pra baixo tem um padding maior
+                              // Caso você mude o piano modifique isso daqui
                               if (note.keys.first == "A#5") {
                                 topPadding = 40;
                               }
@@ -250,12 +247,12 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                               return Padding(
                                 padding: EdgeInsets.only(top: topPadding),
                                 child: SizedBox(
-                                  height: 40, // Black keys remain smaller
+                                  height: 40, // Notas pretas são menores
                                   child: NoteWidget(
                                     note: note.keys.first,
                                     isBlack: true,
                                     width:
-                                        197 / 1.5, // Fixed width for black keys
+                                        197 / 1.5, // Largura das notas pretas
                                     // Note functions
                                     onPressed: () =>
                                         _onNotePressed(note.keys.first),
@@ -276,23 +273,22 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                     child: Stack(
                       children: [
                         
-                        // The grid itself
+                        // A Grid
                         Container(
-                          color: Colors.transparent, // Background of the grid
+                          color: Colors.transparent, // Background da grid
                           child: GridView.builder(
                             itemCount: _notes.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1, // 1 column for each grid
-                              mainAxisExtent: 40,
+                              crossAxisCount: 1,
+                              mainAxisExtent: 40, // Altura de cada linha da grid
                             ),
                             itemBuilder: (context, index) {
                               return DragTarget<Note>(
                                 onWillAccept: (data) {
-                                  // Optionally highlight the grid when dragging over it
                                   return true;
                                 },
                                 onAccept: (Note draggedNote) {
-                                  // Update note position to the new grid row
+                                  // Da update na posição das notas na grid
                                   setState(() {
                                     draggedNote.noteName = _notes[_notes.length - index - 1].keys.first;
                                   });
@@ -305,29 +301,29 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                       // Converte posição do mouse em posição de grid
                                       clickXPosition = (clickXPosition / snap_step).floor() * snap_step;
 
-                                      // The note being pressed
+                                      // A nota sendo pressionada
                                       String notePressed = _notes[_notes.length - index - 1].keys.first;
 
-                                      // Play the note
+                                      // Toca a nota
                                       if (!playingCurrently.value) {
                                         _onNotePressed(notePressed);
                                       }
 
-                                      // Add a note to the track
+                                      // Adiciona a nota na track
                                       widget.track.notes.add(Note(
                                         noteName: notePressed, 
                                         startTime: clickXPosition, 
-                                        duration: lastNoteDuration, // Example duration for now
+                                        duration: lastNoteDuration,
                                       ));
-                                      setState(() {}); // Rebuild the widget to reflect the new note
+                                      setState(() {}); // Reconstroi a widget
                                     },
                                     onTapUp: (TapUpDetails details) {
-                                      // The note being released
+                                      // A sendo solta
                                       String noteReleased = _notes[_notes.length - index - 1].keys.first;
                                       _onNoteReleased(noteReleased);
                                     },
                                     child: Container(
-                                      height: 56, // Fixed height for each grid row
+                                      height: 56,
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -340,7 +336,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              color: Color.fromARGB(54, 5, 5, 5), // Background color of the grid
+                                              color: Color.fromARGB(54, 5, 5, 5), // Background
                                             ),
                                           ),
                                         ],
@@ -353,7 +349,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                           ),
                         ),
 
-                        // Vertical grid lines overlaid using the CustomPainter
+                        // Linhas verticais da grid
                         Positioned.fill(
                           child: IgnorePointer(
                             child: CustomPaint(
@@ -362,15 +358,15 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                           ),
                         ),
 
-                        // Display the notes as draggable rectangles on top of the grid
+                        // Mostra as notas em cima da grid
                         ...widget.track.notes.map((note) {
-                          // Reverse the vertical positioning for correct display
+                          // Inverte a posição das notas para mostrar corretamente
                           int noteIndex = _notes.indexWhere((n) => n.keys.first == note.noteName);
-                          double topPosition = (_notes.length - noteIndex - 1) * 40; // Reverse index for correct position
+                          double topPosition = (_notes.length - noteIndex - 1) * 40;
 
                           return Positioned(
-                            left: note.startTime, // Horizontal position based on startTime
-                            top: topPosition.toDouble(), // Corrected vertical position
+                            left: note.startTime, // Posição X da nota baseada no tempo de começo
+                            top: topPosition.toDouble(), // Corrigi posição vertical
                             child: Listener(
                             onPointerDown: (PointerDownEvent event) {
                               // Botao direito (deletar nota)
@@ -381,11 +377,12 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                             },
                             child: GestureDetector(
                               onPanStart: (details) {
+                                // Quando o mouse é inicialmente pressionado, salva algumas informações importantes
                                 setState(() {
                                   double clickXPosition = details.globalPosition.dx;
-                                  double noteXPosition = note.startTime; // The current X position of the note
+                                  double noteXPosition = note.startTime; // Posição atual X da nota
                                   
-                                  // Calculate the offset between the click position and the note's startTime
+                                  // Calcula a posição inicial do mouse com um offset correto
                                   initialMouseOffsetX = clickXPosition - noteXPosition;
                                 });
                               },
@@ -395,25 +392,21 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                   int mouseGridY = (clickYPosition / 40).floor();
 
                                   double clickXPosition = details.globalPosition.dx;
-                                  // double mouseGridX = (clickXPosition / (snap_step)).floor() * (snap_step);
 
-                                  // Apply the offset and snap to grid
+                                  // Converte posição absoluta do mouse em posição de grid
                                   double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
                                   double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
 
-                                  // Update the horizontal position
-                                  // Snap to grid
-
-                                  //note.startTime += details.delta.dx;
+                                  // Atualiza posição da musica
                                   note.startTime = mouseGridX;
 
-                                  // Out of bounds
+                                  // Impeça que a posição da nota fique abaixo de 0
                                   note.startTime = max(note.startTime, 0);
 
-                                  // Calculate the new row based on vertical dragging
-                                  int newNoteIndex = (_notes.length + 2) - mouseGridY;//(_notes.length - 1) - mouseGridY;
+                                  // Calcula a nova linha da nota (row) baseado na posição Y do mouse
+                                  int newNoteIndex = (_notes.length + 2) - mouseGridY;
 
-                                  // Ensure the new index is within valid bounds
+                                  // Valida a posição da nota
                                   if (newNoteIndex >= 0 && newNoteIndex < _notes.length) {
                                     String newNoteName = _notes[newNoteIndex].keys.first;
 
@@ -430,28 +423,27 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                 });
                               },
                               onPanEnd: (details) {
-                                // When the dragging ends, update the note's final position
+                                // Quando para de arrastar o mouse corrige algumas coisas e atualiza a widget
                                 setState(() {
-                                  // Ensure the note's final position is within the grid bounds
                                   if (note.startTime < 0) {
                                     note.startTime = 0;
                                   }
                                 });
                               },
 
-                              
+                              // Bordas da nota (gerencia redimensionação)
                               child: MouseRegion(
                                 
                                 onHover: (event) {
-                                  // Change cursor when near the edges
+                                  // Muda o icone do cursor quando perto das bordas (direita e esquerda)
                                   if (event.localPosition.dx <= 10 || event.localPosition.dx >= note.duration - 10) {
-                                    // Show resize cursor
                                     SystemMouseCursors.resizeLeftRight;
                                   } else {
-                                    // Default cursor
                                     SystemMouseCursors.click;
                                   }
                                 },
+
+                                // A aparencia da nota
                                 child: Stack(
                                   children: [
                                     Container(
@@ -468,7 +460,8 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                         ),
                                       ),
                                     ),
-                                    // Left resize handle
+
+                                    // Lado esquerdo da nota
                                     Positioned(
                                       left: 0,
                                       top: 0,
@@ -477,9 +470,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                         onPanStart: (details) {
                                           setState(() {
                                             double clickXPosition = details.globalPosition.dx;
-                                            double noteXPosition = note.startTime; // The current X position of the note
-                                            
-                                            // Calculate the offset between the click position and the note's startTime
+                                            double noteXPosition = note.startTime;
                                             initialMouseOffsetX = clickXPosition - noteXPosition;
                                           });
                                         },
@@ -488,11 +479,11 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                           setState(() {
                                             double clickXPosition = details.globalPosition.dx;
 
-                                            // Apply the offset and snap to grid
+                                            // Ajusta posição do mouse para grid
                                             double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
                                             double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
                                             
-                                            // Adjust startTime and duration when resizing from the left
+                                            // Acha diferença entre posição antiga e nova da nota
                                             double difference = note.startTime - mouseGridX;
 
                                             if (mouseGridX >= note.startTime + note.duration) {
@@ -503,12 +494,12 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                               return;
                                             }
 
-
+                                            // Muda a posição inical da nota e consequentemente a duração
                                             note.startTime = mouseGridX;
                                             note.duration += difference;
 
                                             if (note.duration < snap_step) {
-                                              note.duration = snap_step; // Minimum duration limit
+                                              note.duration = snap_step; // Duração minima possivel
                                             }
                                             
                                           });
@@ -516,13 +507,13 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                         child: MouseRegion(
                                           cursor: SystemMouseCursors.resizeLeftRight,
                                           child: Container(
-                                            width: 10, // Handle width
+                                            width: 10,
                                             color: Colors.transparent,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    // Right resize handle
+                                    // Lado direito da nota
                                     Positioned(
                                       right: 0,
                                       top: 0,
@@ -531,12 +522,10 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                         onPanStart: (details) {
                                           setState(() {
                                             double clickXPosition = details.globalPosition.dx;
-                                            double noteXPosition = note.startTime; // The current X position of the note
-                                            
-                                            // Calculate the offset between the click position and the note's startTime
+                                            double noteXPosition = note.startTime;
                                             initialMouseOffsetX = clickXPosition - noteXPosition;
 
-                                            // Save initial note duration
+                                            // Salva duração inicial da nota
                                             initialNoteDuration = note.duration;
                                           });
                                         },
@@ -545,18 +534,18 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                           setState(() {
                                             double clickXPosition = details.globalPosition.dx;
                                             
-                                            // Apply the offset and snap to grid
+                                            // Aplica posição de grid no mouse
                                             double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
                                             double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
 
-                                            // Initial duration position
+                                            // Muda duração da nota
                                             note.duration = initialNoteDuration! + (mouseGridX - note.startTime);
 
                                             if (note.duration < snap_step) {
-                                              note.duration = snap_step; // Minimum duration limit
+                                              note.duration = snap_step; // Duração minima
                                             }
                                             
-                                            // Save last note duration
+                                            // Salva a ultima modificação da nota
                                             lastNoteDuration = note.duration;
                                           });
                                         },
@@ -610,18 +599,18 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 }
 
 class VerticalGridPainter extends CustomPainter {
-  final double stepGrid; // The value for the vertical grid steps
+  final double stepGrid;
 
   VerticalGridPainter({required this.stepGrid});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.1) // Vertical grid color
-      ..strokeWidth = 1; // Width of the grid lines
+      ..color = Colors.black.withOpacity(0.1)
+      ..strokeWidth = 1;
 
     final paint2 = Paint()
-      ..color = Colors.black.withOpacity(0.4) // Vertical grid color
+      ..color = Colors.black.withOpacity(0.4)
       ..strokeWidth = 1;
 
     // Draw vertical lines based on step_grid value
