@@ -3,6 +3,7 @@ library MAISound.globals;
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/recorder.dart';
+import 'package:maisound/classes/track.dart';
 
 // User
 String username = "user";
@@ -16,10 +17,14 @@ double timestamp =
 ValueNotifier<bool> playingCurrently = ValueNotifier<bool>(false);
 
 // Lista de instrumentos do projeto
-List instruments = [Instrument()];
+List<Instrument> instruments = [Instrument()];
 
 // Estruturação das tracks do projeto
-List main_tracks = [];
+List<Track> tracks = [];
+
+// Estruturação da pagina principal e o tempo de cada track
+// [Track (Referencia a uma das track na lista tracks), Tempo de inicio]
+List tracks_structure = [];
 
 // Global recorder
 final Recorder recorder = Recorder();

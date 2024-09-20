@@ -4,6 +4,12 @@ import 'package:maisound/classes/globals.dart';
 // For rootBundle
 
 
+
+// Define the order of note letters
+List<String> noteLetterOrder = [
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+];
+
 class Note {
   String noteName;
   double startTime;
@@ -18,6 +24,38 @@ class Note {
   @override
   String toString() {
     return "Note: $noteName, Start Time: $startTime, Duration: $duration";
+  }
+
+  int compareTo(Note other) {
+    // Extract note letter and octave from both notes
+    String noteLetter1 = noteName.substring(0, noteName.length - 1);
+    int octave1 = int.parse(noteName.substring(noteName.length - 1));
+    String noteLetter2 = other.noteName.substring(0, other.noteName.length - 1);
+    int octave2 = int.parse(other.noteName.substring(other.noteName.length - 1));
+
+    // Compare note letters
+    int letterComparison = noteLetterOrder.indexOf(noteLetter1) - noteLetterOrder.indexOf(noteLetter2);
+
+    // If note letters are the same, compare octaves
+    if (letterComparison == 0) {
+      return octave1 - octave2;
+    } else {
+      return letterComparison;
+    }
+  }
+
+  int noteNameToInteger() {
+    noteName = this.noteName;
+
+    // Extract note letter and octave
+    String noteLetter = noteName.substring(0, noteName.length - 1);
+    int octave = int.parse(noteName.substring(noteName.length - 1));
+
+    // Map note letter to an integer value (starting from 0 for C)
+    int noteLetterValue = noteLetterOrder.indexOf(noteLetter);
+
+    // Calculate the final integer value
+    return noteLetterValue + (octave - 1) * 12;
   }
 }
 

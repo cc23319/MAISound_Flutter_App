@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
+import 'package:maisound/classes/track.dart';
+import 'package:maisound/track_page.dart';
 import 'package:maisound/ui/marker.dart';
 
 class InstrumentTracks extends StatefulWidget {
@@ -11,6 +15,9 @@ class InstrumentTracks extends StatefulWidget {
 class _InstrumentTracksState extends State<InstrumentTracks> {
   double _markerPosition = 0.0;
 
+  double? initialMouseOffsetX;
+  double snapStep = 64;
+
   void _updateMarkerPosition(double newPosition) {
     setState(() {
       _markerPosition = newPosition;
@@ -18,14 +25,15 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
   }
 
   // Handle adding a track to the global list
-  void _addTrackToPosition(Offset localPosition, int index) {
+  void _addTrackToPosition(Offset localPosition, int index, Instrument instrument) {
     // Here, you calculate the start and end based on the position
     // For this example, I'm setting a constant duration (end-start)
     double start = localPosition.dx; // Starting point based on the click
-    double end = start + 100; // A default length for the new track block
 
     setState(() {
-      main_tracks.add([index, start, end]);
+      Track newTrack = Track(instrument);
+      tracks.add(newTrack);
+      tracks_structure.add([newTrack, start]);
     });
   }
 
@@ -37,23 +45,26 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
       children: [
         Column(
           children: [
-            // Timestamp marker with an update callback
-            Container(
+            // Marcador do tempo
+            Padding(
+              padding: EdgeInsets.only(left: 400),
               child: TimestampMarker(onPositionChanged: _updateMarkerPosition),
             ),
             Expanded(
               child: Row(
                 children: [
-                  // First Column: Instrument Details
+                  // Coluna dos instrumentos
                   Container(
                     width: 400,
                     color: const Color(0xFF1D1D26),
                     child: Column(
                       children: [
                         Expanded(
+                          // Constroi cada instrumento
                           child: ListView.builder(
                             itemCount: instruments.length,
                             itemBuilder: (context, index) {
+                              // Instrumento atual
                               final instrument = instruments[index];
                               return Padding(
                                 padding:
@@ -85,11 +96,12 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                                 ),
                                               ],
                                             ),
+                                            // Slider de volume
                                             Slider(
                                               value: instrument.volume,
                                               min: 0,
-                                              max: 100,
-                                              divisions: 10,
+                                              max: 1,
+                                              //divisions: 0,
                                               label:
                                                   '${instrument.volume.round()}',
                                               onChanged: (newValue) {
@@ -102,6 +114,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                         ),
                                       ),
                                     ),
+                                    // Botão de remover
                                     Positioned(
                                       top: 8,
                                       right: 8,
@@ -120,6 +133,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                             },
                           ),
                         ),
+                        // Botão de adicionar instrumento
                         IconButton(
                           icon: Icon(Icons.add),
                           iconSize: 48,
@@ -133,109 +147,134 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                     ),
                   ),
 
-                  // Second Column: Tracks
-                  Container(
-                    width: 1600,
-                    color: const Color(0x00051681),
-                    child: ListView.builder(
-                      itemCount: instruments.length,
-                      itemBuilder: (context, index) {
-                        final instrument = instruments[index];
-                        return GestureDetector(
-                          onTapDown: (details) {
-                            _addTrackToPosition(details.localPosition, index);
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                height:
-                                    120, // Match the height with the first column
-                                color: instrument.color.withOpacity(0.1),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Center(),
-                              ),
-                              for (var track in main_tracks
-                                  .where((track) => track[0] == index))
-                                Positioned(
-                                  left: track[1], // Set the position
-                                  child: Draggable<Map<String, dynamic>>(
-                                    data: {'track': track, 'index': index},
-                                    feedback: Container(
-                                      width: track[2] - track[1],
-                                      height: 120,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            instrument.color.withOpacity(0.6),
-                                        border: Border.all(
-                                            color: Colors.black, width: 1),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          // Top bar with track name
-                                          Container(
-                                            height: 20,
-                                            color: Colors.black54,
-                                            child: Center(
-                                              child: Text(
-                                                '${instrument.name} #${index + 1}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14),
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Container(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    childWhenDragging: Container(),
-                                    child: Container(
-                                      width: track[2] - track[1],
-                                      height: 120,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            instrument.color.withOpacity(0.6),
-                                        border: Border.all(
-                                            color: Colors.black, width: 1),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          // Top bar with track name
-                                          Container(
-                                            height: 20,
-                                            color: Colors.black54,
-                                            child: Center(
-                                              child: Text(
-                                                '${instrument.name} #${index + 1}',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14),
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Container(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    onDragEnd: (details) {
-                                      setState(() {
-                                        // Update the start position after dragging
-                                        track[1] = details.offset.dx;
-                                        track[2] =
-                                            track[1] + 100; // Recalculate end
-                                      });
-                                    },
-                                  ),
+                  // Coluna de Tracks (de cada instrumento)
+                  Expanded(
+                    child: Container(
+                      color: const Color(0x00051681),
+                      child: ListView.builder(
+                        itemCount: instruments.length,
+                        itemBuilder: (context, index) {
+                          final instrument = instruments[index];
+                          
+                          // Filtra as tracks e obtem apenas as pertencentes ao instrumento atual
+                          final instrumentTracks = tracks_structure.where((trackStructure) {
+                            Track track = trackStructure[0];
+                            return track.instrument == instrument;
+                          }).toList();
+                          
+                          return GestureDetector(
+                            child: Stack(
+                              children: [
+                                // Mostra a linha da track background
+                                Container(
+                                  height: 120,
+                                  color: instrument.color.withOpacity(0.1),
+                                  margin: const EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                            ],
-                          ),
-                        );
-                      },
+
+                                // Constroi a track para o instrumento atual
+                                ...instrumentTracks.map((trackStructure) {
+                                  Track track = trackStructure[0];
+                                  double startTime = trackStructure[1];
+
+                                  return Positioned(
+                                    left: startTime,
+                                    top: 8.0,
+                                    child: Listener(
+                                      child: GestureDetector(
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Color.fromARGB(255, 17, 0, 80),
+                                                border: Border.all(color: Color.fromARGB(255, 41, 13, 168), width: 2),
+                                              ),
+                                              width: track.duration.toDouble(),
+                                              height: 120,
+                                            ),
+                                            Container(
+                                              color: instrument.color,
+                                              width: track.duration.toDouble(),
+                                              height: 30,
+                                            ),
+                                            Positioned(
+                                              top: 0,
+                                              left: 0,
+                                              right: 0,
+                                              child: Center(
+                                                child: Text(
+                                                  instrument.name,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Draw track notes
+                                            for (var note in track.notes)
+                                            Positioned(
+                                              top: 30.0 + (track.highestNoteIndex - note.noteNameToInteger()) * (90.0 / (track.noteRange + 1)),
+                                              left: note.startTime.toDouble(),
+                                              width: note.duration.toDouble(),
+                                              height: _calculateNoteHeight(track.noteRange, 90.0),
+                                              child: Container(
+                                                color: Colors.blue, // Replace with your desired color
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        
+
+                                        onPanStart: (details) {
+                                          // Quando o mouse é inicialmente pressionado, salva algumas informações importantes
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+                                            double trackXPosition = startTime; // Posição atual X da track
+                                            
+                                            // Calcula a posição inicial do mouse com um offset correto
+                                            initialMouseOffsetX = clickXPosition - trackXPosition;
+                                          });
+                                        },
+                                        onPanUpdate: (details) {
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+
+                                            // Converte posição absoluta do mouse em posição de grid
+                                            double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
+                                            double mouseGridX = (adjustedMouseX / snapStep).floor() * snapStep;
+
+                                            // Atualiza posição da musica
+                                            trackStructure[1] = mouseGridX;
+                                          });
+                                        },
+                                        onPanEnd: (details) {
+                                          // Quando para de arrastar o mouse corrige algumas coisas e atualiza a widget
+                                          setState(() {
+                                          });
+                                        },
+                                        onDoubleTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)),
+                                          );
+                                        },
+                                    ),
+                                    
+                                  ));
+                                }
+                                ).toList(),
+                              ],
+                            ),
+                            // Adiciona a track na posição clicada
+                            onTapDown: (details) {
+                              _addTrackToPosition(details.localPosition, index, instrument);
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -243,8 +282,36 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
             ),
           ],
         ),
-        getLine(_markerPosition, screenHeight, 0)
+        getLine(_markerPosition, screenHeight, 400)
       ],
     );
   }
+}
+
+double _calculateNoteHeight(int noteRange, double containerHeight) {
+  const minNoteHeight = 1.0; // Adjust as needed
+  double maxNoteHeight = containerHeight; // Adjust as needed
+
+  if (noteRange == -1 || noteRange == 0) {
+    return maxNoteHeight; // Handle empty or single-note cases
+  }
+
+  double calculatedHeight = containerHeight / (noteRange + 1);
+  return calculatedHeight.clamp(minNoteHeight, maxNoteHeight);
+}
+
+class VisualTrackWidget extends StatefulWidget {
+  const VisualTrackWidget({super.key});
+
+  @override
+  _VisualTrackWidgetState createState() => _VisualTrackWidgetState();
+}
+
+class _VisualTrackWidgetState extends State<VisualTrackWidget> {
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
+  }
+
 }

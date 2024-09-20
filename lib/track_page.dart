@@ -8,7 +8,8 @@ import 'package:maisound/ui/piano_row.dart';
 
 // Mostra uma track visualmente (Classe Track)
 class TrackPageWidget extends StatefulWidget {
-  const TrackPageWidget({super.key}); //, required Track track});
+  Track track;
+  TrackPageWidget({super.key, required this.track}); //, required Track track});
 
   @override
   _TrackPageWidgetState createState() => _TrackPageWidgetState();
@@ -16,8 +17,8 @@ class TrackPageWidget extends StatefulWidget {
 
 class _TrackPageWidgetState extends State<TrackPageWidget> {
   // Debug
-  late Instrument inst = Instrument();
-  late Track track = Track(inst);
+  late Track track = widget.track;//Track(inst);
+  late Instrument inst = track.instrument;
 
   // Desabilita clique com botão direito de abrir a janela padrão 
   @override

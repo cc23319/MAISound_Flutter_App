@@ -122,9 +122,16 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
       }
     }
 
-    setState(() {
-      _markerPosition = newPosition;
-    });
+    if (mounted) {
+      setState(() {
+          _markerPosition = newPosition;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   // Lista de notas na vertical
@@ -310,18 +317,20 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                       }
 
                                       // Adiciona a nota na track
-                                      widget.track.notes.add(Note(
+                                      widget.track.addNote(Note(
                                         noteName: notePressed, 
                                         startTime: clickXPosition, 
                                         duration: lastNoteDuration,
                                       ));
                                       setState(() {}); // Reconstroi a widget
                                     },
+                                    
                                     onTapUp: (TapUpDetails details) {
                                       // A sendo solta
                                       String noteReleased = _notes[_notes.length - index - 1].keys.first;
                                       _onNoteReleased(noteReleased);
                                     },
+
                                     child: Container(
                                       height: 56,
                                       decoration: BoxDecoration(
