@@ -70,34 +70,61 @@ class Instrument {
     });
   }
 
-  // Para o som de uma nota com fade out
-  void stopSound(String key, {Duration fadeOutDuration = const Duration(milliseconds: 500)}) async {
+  // Forcibly stops the sound and disposes of the player
+  void fullStopSound(String key) async {
     key = key.toUpperCase();
 
-    // Verifica se há um player tocando essa nota
+    // Check if there is a player playing the note
     if (activePlayers.containsKey(key)) {
       AudioPlayer notePlayer = activePlayers[key]!;
 
-      // Se o fade-out já está em progresso, não inicia outro
+      // If a fade-out is in progress, cancel it first
       if (isFadingOut.containsKey(key) && isFadingOut[key]!) {
-        return;
+        // Optionally wait for the fade-out to finish, or just cancel it
+        isFadingOut[key] = false; // Cancel the fade-out
       }
 
-      // Marca que o fade-out está em progresso
-      isFadingOut[key] = true;
+      // Stop the sound and remove the player from the map
+      await notePlayer.stop();
+      activePlayers.remove(key);
+      notePlayer.dispose();
+    }
+  }
 
-      // Gradualmente reduz o volume
-      await fadeOut(notePlayer, fadeOutDuration);
+  // Para todos os sons
+  void fullStopAllSounds() {
+    
+  }
 
-      // Para o som e remove o player do map
+ // Stops the sound with a fade out
+void stopSound(String key, {Duration fadeOutDuration = const Duration(milliseconds: 250)}) async {
+  key = key.toUpperCase();
+
+  // Check if there's a player playing this note
+  if (activePlayers.containsKey(key)) {
+    AudioPlayer notePlayer = activePlayers[key]!;
+
+    // If a fade-out is already in progress, do not start another
+    if (isFadingOut[key] == true) {
+      return;
+    }
+
+    // Mark that fade-out is in progress
+    isFadingOut[key] = true;
+
+    // Gradually reduce the volume
+    await fadeOut(notePlayer, fadeOutDuration);
+
+    // If the fade-out was not interrupted by a full stop, stop the player
+    if (isFadingOut[key] == true) {
       await notePlayer.stop();
       activePlayers.remove(key);
       isFadingOut.remove(key);
       notePlayer.dispose();
     }
   }
+}
 
-  // Método para o fade out
   Future<void> fadeOut(AudioPlayer player, Duration duration) async {
     double initialVolume = player.volume;
     int steps = 20; // Number of steps for fading out
@@ -106,41 +133,24 @@ class Instrument {
 
     for (int i = 0; i < steps; i++) {
       await Future.delayed(Duration(milliseconds: stepDuration));
+      
+      // If the fade-out process was interrupted (e.g., by a full stop), exit early
+      if (isFadingOut.containsKey(player.toString()) && isFadingOut[player.toString()] == false) {
+        break;
+      }
+
       double newVolume = initialVolume - (i + 1) * volumeStep;
       if (newVolume < 0) newVolume = 0;
       if (player == activePlayers.values.firstWhere((p) => p == player, orElse: () => player)) {
-        await player.setVolume(newVolume);
+        // await player.setVolume(newVolume);
+        player.setVolume(newVolume);
       }
     }
-  }
+}
 
   // Carrega os sons dos assets (mesmo método que você já tem)
   Future<void> loadSounds() async {
     // Adiciona os caminhos das notas manualmente
-    sounds["C1"] = "instruments/piano/3-c.wav";
-    sounds["C#1"] = "instruments/piano/3-cs.wav";
-    sounds["D1"] = "instruments/piano/3-d.wav";
-    sounds["D#1"] = "instruments/piano/3-ds.wav";
-    sounds["E1"] = "instruments/piano/3-e.wav";
-    sounds["F1"] = "instruments/piano/3-f.wav";
-    sounds["F#1"] = "instruments/piano/3-fs.wav";
-    sounds["G1"] = "instruments/piano/3-g.wav";
-    sounds["G#1"] = "instruments/piano/3-gs.wav";
-    sounds["A1"] = "instruments/piano/3-a.wav";
-    sounds["A#1"] = "instruments/piano/3-as.wav";
-    sounds["B1"] = "instruments/piano/3-b.wav";
-    sounds["C2"] = "instruments/piano/3-c.wav";
-    sounds["C#2"] = "instruments/piano/3-cs.wav";
-    sounds["D2"] = "instruments/piano/3-d.wav";
-    sounds["D#2"] = "instruments/piano/3-ds.wav";
-    sounds["E2"] = "instruments/piano/3-e.wav";
-    sounds["F2"] = "instruments/piano/3-f.wav";
-    sounds["F#2"] = "instruments/piano/3-fs.wav";
-    sounds["G2"] = "instruments/piano/3-g.wav";
-    sounds["G#2"] = "instruments/piano/3-gs.wav";
-    sounds["A2"] = "instruments/piano/3-a.wav";
-    sounds["A#2"] = "instruments/piano/3-as.wav";
-    sounds["B2"] = "instruments/piano/3-b.wav";
     sounds["C3"] = "instruments/piano/3-c.wav";
     sounds["C#3"] = "instruments/piano/3-cs.wav";
     sounds["D3"] = "instruments/piano/3-d.wav";

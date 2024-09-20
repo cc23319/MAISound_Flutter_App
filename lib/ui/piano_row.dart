@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
 import 'package:maisound/ui/marker.dart';
@@ -88,22 +89,31 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   // Posição do marcador de tempo na track
   double _markerPosition = 0.0;
 
+  // Quantas repartições (Snap to grid) existem horizontalmente
+  // 1 = 1 repartição a cada 1 minuto
+  double snap_step = 30;
+
+  // Usado para calcular a posição inicial relativa do mouse ao arrastar notas horizontalmente
+  double? initialMouseOffsetX;
+
   // Notes that are being played currently
   List<Note> playing_notes = [];
   void _updateMarkerPosition(double newPosition) {
     // Play music
-    for(var i = 0; i < widget.track.notes.length; i++){
-      Note current_note = widget.track.notes[i];
+    if (playingCurrently.value) {
+      for(var i = 0; i < widget.track.notes.length; i++){
+        Note current_note = widget.track.notes[i];
 
-      if (playing_notes.contains(current_note)) {
-        if (_markerPosition < current_note.startTime || _markerPosition > current_note.startTime + current_note.duration) {
-          playing_notes.remove(current_note);
-          widget.track.instrument.stopSound(current_note.noteName);
-        }
-      } else {
-        if (_markerPosition > current_note.startTime && _markerPosition < current_note.startTime + current_note.duration) {
-          playing_notes.add(current_note);
-          widget.track.instrument.playSound(current_note.noteName);
+        if (playing_notes.contains(current_note)) {
+          if (_markerPosition < current_note.startTime || _markerPosition > current_note.startTime + current_note.duration) {
+            playing_notes.remove(current_note);
+            widget.track.instrument.stopSound(current_note.noteName);
+          }
+        } else {
+          if (_markerPosition > current_note.startTime && _markerPosition < current_note.startTime + current_note.duration) {
+            playing_notes.add(current_note);
+            widget.track.instrument.playSound(current_note.noteName);
+          }
         }
       }
     }
@@ -144,13 +154,13 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   // Quando alguma nota é pressionada esta função e chamada
   void _onNotePressed(String note) {
     widget.track.instrument.playSound(note);
-    print('$note pressed');
+    //print('$note pressed');
   }
 
   // Quando alguma nota para de ser pressionada esta função é chamada
   void _onNoteReleased(String note) {
     widget.track.instrument.stopSound(note);
-    print('$note released');
+    //print('$note released');
   }
 
   @override
@@ -286,6 +296,9 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                     onTapDown: (TapDownDetails details) {
                                       double clickXPosition = details.localPosition.dx;
 
+                                      // Converte posição do mouse em posição de grid
+                                      clickXPosition = (clickXPosition / snap_step).floor() * snap_step;
+
                                       // The note being pressed
                                       String notePressed = _notes[_notes.length - index - 1].keys.first;
                                       _onNotePressed(notePressed);
@@ -294,7 +307,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                       widget.track.notes.add(Note(
                                         noteName: notePressed, 
                                         startTime: clickXPosition, 
-                                        duration: 100, // Example duration for now
+                                        duration: snap_step * 4, // Example duration for now
                                       ));
                                       setState(() {}); // Rebuild the widget to reflect the new note
                                     },
@@ -340,13 +353,33 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                             left: note.startTime, // Horizontal position based on startTime
                             top: topPosition.toDouble(), // Corrected vertical position
                             child: GestureDetector(
+                              onPanStart: (details) {
+                                setState(() {
+                                  double clickXPosition = details.globalPosition.dx;
+                                  double noteXPosition = note.startTime; // The current X position of the note
+                                  
+                                  // Calculate the offset between the click position and the note's startTime
+                                  initialMouseOffsetX = clickXPosition - noteXPosition;
+                                });
+                              },
+
                               onPanUpdate: (details) {
                                 setState(() {
                                   double clickYPosition = details.globalPosition.dy;
                                   int mouseGridY = (clickYPosition / 40).floor();
 
+                                  double clickXPosition = details.globalPosition.dx;
+                                  // double mouseGridX = (clickXPosition / (snap_step)).floor() * (snap_step);
+
+                                  // Apply the offset and snap to grid
+                                  double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
+                                  double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
+
                                   // Update the horizontal position
-                                  note.startTime += details.delta.dx;
+                                  // Snap to grid
+
+                                  //note.startTime += details.delta.dx;
+                                  note.startTime = mouseGridX;
 
                                   // Out of bounds
                                   // note.startTime = max(note.startTime, 0);
@@ -356,7 +389,17 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
                                   // Ensure the new index is within valid bounds
                                   if (newNoteIndex >= 0 && newNoteIndex < _notes.length) {
-                                    note.noteName = _notes[newNoteIndex].keys.first;
+                                    String newNoteName = _notes[newNoteIndex].keys.first;
+
+                                    // Toca um som quando o indice muda
+                                    if (note.noteName != newNoteName) {
+                                      widget.track.instrument.playSound(newNoteName);
+
+                                      // Para o som anterior
+                                      widget.track.instrument.stopSound(note.noteName, fadeOutDuration: const Duration(milliseconds: 10));
+                                    }
+
+                                    note.noteName = newNoteName;
                                   }
                                 });
                               },
