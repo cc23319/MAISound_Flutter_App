@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
@@ -340,12 +342,17 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                             child: GestureDetector(
                               onPanUpdate: (details) {
                                 setState(() {
+                                  double clickYPosition = details.globalPosition.dy;
+                                  int mouseGridY = (clickYPosition / 40).floor();
+
                                   // Update the horizontal position
                                   note.startTime += details.delta.dx;
 
+                                  // Out of bounds
+                                  // note.startTime = max(note.startTime, 0);
+
                                   // Calculate the new row based on vertical dragging
-                                  double newTopPosition = topPosition + details.delta.dy;
-                                  int newNoteIndex = (_notes.length - 1) - (newTopPosition / 40).floor();
+                                  int newNoteIndex = (_notes.length + 2) - mouseGridY;//(_notes.length - 1) - mouseGridY;
 
                                   // Ensure the new index is within valid bounds
                                   if (newNoteIndex >= 0 && newNoteIndex < _notes.length) {
