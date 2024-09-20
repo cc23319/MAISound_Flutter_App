@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
@@ -16,6 +18,14 @@ class _TrackPageWidgetState extends State<TrackPageWidget> {
   // Debug
   late Instrument inst = Instrument();
   late Track track = Track(inst);
+
+  // Desabilita clique com botão direito de abrir a janela padrão 
+  @override
+  void initState() {
+    super.initState();
+    // Prevent default event handler
+    document.onContextMenu.listen((event) => event.preventDefault());
+  }
 
   @override
   Widget build(BuildContext context) {

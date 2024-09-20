@@ -9,7 +9,7 @@ String username = "user";
 
 // Config
 String project_name = "Generic";
-double master_volume = 1;
+double master_volume = 0.75;
 double BPM = 130; // Influencia o quão rapido o valor de timestamp aumenta
 double timestamp =
     0.00; // Timestamp da musica em geral (Não é de uma track individual)

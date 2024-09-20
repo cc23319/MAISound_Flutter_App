@@ -29,13 +29,13 @@ class Instrument {
   double volume = 0.5;
   String name = "Piano";
   Color color = Color.fromARGB(255, 60, 104, 248);
-  late List tracks;
-
+  int maxSimultaneousNotes = 10; // Limit the number of notes played at the same time
+  List<String> activeNotesOrder = []; // Track order of active notes
+  
   Instrument() {
     loadSounds();
   }
 
-  // Toca um som de uma nota
   void playSound(String key) async {
     key = key.toUpperCase();
 
@@ -44,9 +44,15 @@ class Instrument {
       return;
     }
 
-    // Se a nota já está sendo tocada, não a toca novamente
+    // Se já há notas ativas, para a mais antiga
+    if (activePlayers.length >= maxSimultaneousNotes) {
+      String oldestNote = activeNotesOrder.removeAt(0); // Remove o mais antigo
+      stopSound(oldestNote); // Para a nota mais antiga
+    }
+
+    // Stop the current note if it's being played to allow quick repetitions
     if (activePlayers.containsKey(key)) {
-      return;
+      stopSound(key);
     }
 
     // Cria um novo AudioPlayer para tocar o som
@@ -60,72 +66,55 @@ class Instrument {
     
     // Armazena o player no map
     activePlayers[key] = notePlayer;
+    activeNotesOrder.add(key); // Adiciona à lista de notas ativas
     isFadingOut[key] = false;
 
     // Libera o recurso do player após o término da reprodução
     notePlayer.onPlayerComplete.listen((event) {
       activePlayers.remove(key); // Remove o player do map quando terminar
+      activeNotesOrder.remove(key); // Remove a nota ativa
       isFadingOut.remove(key); // Remove o flag de fade-out
       notePlayer.dispose();
     });
   }
 
-  // Forcibly stops the sound and disposes of the player
-  void fullStopSound(String key) async {
+  // Para todos os sons
+  void fullStopAllSounds() {
+    for (String key in activePlayers.keys.toList()) {
+      stopSound(key);
+    }
+  }
+
+  void stopSound(String key, {Duration fadeOutDuration = const Duration(milliseconds: 250)}) async {
     key = key.toUpperCase();
 
-    // Check if there is a player playing the note
+    // Check if there's a player playing this note
     if (activePlayers.containsKey(key)) {
       AudioPlayer notePlayer = activePlayers[key]!;
 
-      // If a fade-out is in progress, cancel it first
-      if (isFadingOut.containsKey(key) && isFadingOut[key]!) {
-        // Optionally wait for the fade-out to finish, or just cancel it
-        isFadingOut[key] = false; // Cancel the fade-out
+      // If a fade-out is already in progress, do not start another
+      if (isFadingOut[key] == true) {
+        return;
       }
 
-      // Stop the sound and remove the player from the map
-      await notePlayer.stop();
-      activePlayers.remove(key);
-      notePlayer.dispose();
+      // Mark that fade-out is in progress
+      isFadingOut[key] = true;
+
+      // Gradually reduce the volume
+      await fadeOut(notePlayer, fadeOutDuration, key);
+
+      // If the fade-out was not interrupted, stop the player
+      if (isFadingOut[key] == true) {
+        await notePlayer.stop();
+        activePlayers.remove(key);
+        activeNotesOrder.remove(key);
+        isFadingOut.remove(key);
+        notePlayer.dispose();
+      }
     }
   }
 
-  // Para todos os sons
-  void fullStopAllSounds() {
-    
-  }
-
- // Stops the sound with a fade out
-void stopSound(String key, {Duration fadeOutDuration = const Duration(milliseconds: 250)}) async {
-  key = key.toUpperCase();
-
-  // Check if there's a player playing this note
-  if (activePlayers.containsKey(key)) {
-    AudioPlayer notePlayer = activePlayers[key]!;
-
-    // If a fade-out is already in progress, do not start another
-    if (isFadingOut[key] == true) {
-      return;
-    }
-
-    // Mark that fade-out is in progress
-    isFadingOut[key] = true;
-
-    // Gradually reduce the volume
-    await fadeOut(notePlayer, fadeOutDuration);
-
-    // If the fade-out was not interrupted by a full stop, stop the player
-    if (isFadingOut[key] == true) {
-      await notePlayer.stop();
-      activePlayers.remove(key);
-      isFadingOut.remove(key);
-      notePlayer.dispose();
-    }
-  }
-}
-
-  Future<void> fadeOut(AudioPlayer player, Duration duration) async {
+  Future<void> fadeOut(AudioPlayer player, Duration duration, String key) async {
     double initialVolume = player.volume;
     int steps = 20; // Number of steps for fading out
     double volumeStep = initialVolume / steps;
@@ -133,25 +122,30 @@ void stopSound(String key, {Duration fadeOutDuration = const Duration(millisecon
 
     for (int i = 0; i < steps; i++) {
       await Future.delayed(Duration(milliseconds: stepDuration));
-      
-      // If the fade-out process was interrupted (e.g., by a full stop), exit early
-      if (isFadingOut.containsKey(player.toString()) && isFadingOut[player.toString()] == false) {
-        break;
+
+      // If fade-out was interrupted, exit early
+      if (isFadingOut[key] == false) {
+        return;
       }
 
+      // Calculate new volume
       double newVolume = initialVolume - (i + 1) * volumeStep;
       if (newVolume < 0) newVolume = 0;
-      if (player == activePlayers.values.firstWhere((p) => p == player, orElse: () => player)) {
-        // await player.setVolume(newVolume);
-        player.setVolume(newVolume);
+
+      // Set the new volume
+      try {
+        await player.setVolume(newVolume);
+      } catch (e) {
+        print(e); // If setting volume fails, exit the loop
       }
     }
-}
+  }
+
 
   // Carrega os sons dos assets (mesmo método que você já tem)
   Future<void> loadSounds() async {
     // Adiciona os caminhos das notas manualmente
-    sounds["C3"] = "instruments/piano/3-c.wav";
+sounds["C3"] = "instruments/piano/3-c.wav";
     sounds["C#3"] = "instruments/piano/3-cs.wav";
     sounds["D3"] = "instruments/piano/3-d.wav";
     sounds["D#3"] = "instruments/piano/3-ds.wav";

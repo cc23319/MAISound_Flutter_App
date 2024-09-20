@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
@@ -91,10 +93,12 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
   // Quantas repartições (Snap to grid) existem horizontalmente
   // 1 = 1 repartição a cada 1 minuto
-  double snap_step = 30;
+  double snap_step = 32;
 
   // Usado para calcular a posição inicial relativa do mouse ao arrastar notas horizontalmente
   double? initialMouseOffsetX;
+  double? initialNoteDuration;
+  double lastNoteDuration = 64;
 
   // Notes that are being played currently
   List<Note> playing_notes = [];
@@ -168,6 +172,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Stack(
+      
       children: [
         Column(
           children: [
@@ -270,6 +275,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                   Expanded(
                     child: Stack(
                       children: [
+                        
                         // The grid itself
                         Container(
                           color: Colors.transparent, // Background of the grid
@@ -301,13 +307,17 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
                                       // The note being pressed
                                       String notePressed = _notes[_notes.length - index - 1].keys.first;
-                                      _onNotePressed(notePressed);
+
+                                      // Play the note
+                                      if (!playingCurrently.value) {
+                                        _onNotePressed(notePressed);
+                                      }
 
                                       // Add a note to the track
                                       widget.track.notes.add(Note(
                                         noteName: notePressed, 
                                         startTime: clickXPosition, 
-                                        duration: snap_step * 4, // Example duration for now
+                                        duration: lastNoteDuration, // Example duration for now
                                       ));
                                       setState(() {}); // Rebuild the widget to reflect the new note
                                     },
@@ -343,6 +353,15 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                           ),
                         ),
 
+                        // Vertical grid lines overlaid using the CustomPainter
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: VerticalGridPainter(stepGrid: snap_step),
+                            ),
+                          ),
+                        ),
+
                         // Display the notes as draggable rectangles on top of the grid
                         ...widget.track.notes.map((note) {
                           // Reverse the vertical positioning for correct display
@@ -352,6 +371,14 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                           return Positioned(
                             left: note.startTime, // Horizontal position based on startTime
                             top: topPosition.toDouble(), // Corrected vertical position
+                            child: Listener(
+                            onPointerDown: (PointerDownEvent event) {
+                              // Botao direito (deletar nota)
+                              if (event.kind == PointerDeviceKind.mouse && event.buttons == kSecondaryMouseButton) {
+                                widget.track.notes.remove(note);
+                                setState(() {});
+                              }
+                            },
                             child: GestureDetector(
                               onPanStart: (details) {
                                 setState(() {
@@ -362,7 +389,6 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                   initialMouseOffsetX = clickXPosition - noteXPosition;
                                 });
                               },
-
                               onPanUpdate: (details) {
                                 setState(() {
                                   double clickYPosition = details.globalPosition.dy;
@@ -382,7 +408,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                   note.startTime = mouseGridX;
 
                                   // Out of bounds
-                                  // note.startTime = max(note.startTime, 0);
+                                  note.startTime = max(note.startTime, 0);
 
                                   // Calculate the new row based on vertical dragging
                                   int newNoteIndex = (_notes.length + 2) - mouseGridY;//(_notes.length - 1) - mouseGridY;
@@ -396,7 +422,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                       widget.track.instrument.playSound(newNoteName);
 
                                       // Para o som anterior
-                                      widget.track.instrument.stopSound(note.noteName, fadeOutDuration: const Duration(milliseconds: 10));
+                                      widget.track.instrument.stopSound(note.noteName, fadeOutDuration: const Duration(milliseconds: 5));
                                     }
 
                                     note.noteName = newNoteName;
@@ -412,18 +438,159 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                                   }
                                 });
                               },
-                              child: Container(
-                                width: note.duration.toDouble(), // Duration represented as width
-                                height: 40, // Fixed height for each note
-                                color: Colors.blue.withOpacity(0.6), // Color for the note rectangle
-                                child: Center(
-                                  child: Text(
-                                    note.noteName,
-                                    style: TextStyle(color: Colors.white, fontSize: 10),
-                                  ),
-                                ),
-                              ),
+
+                              
+                              child: MouseRegion(
+                                
+                                onHover: (event) {
+                                  // Change cursor when near the edges
+                                  if (event.localPosition.dx <= 10 || event.localPosition.dx >= note.duration - 10) {
+                                    // Show resize cursor
+                                    SystemMouseCursors.resizeLeftRight;
+                                  } else {
+                                    // Default cursor
+                                    SystemMouseCursors.click;
+                                  }
+                                },
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Color.fromARGB(255, 50, 168, 50),
+                                        border: Border.all(color: Color.fromARGB(255, 71, 201, 71), width: 2)
+                                      ),
+                                      width: note.duration.toDouble(),
+                                      height: 40,
+                                      child: Center(
+                                        child: Text(
+                                          note.noteName,
+                                          style: TextStyle(color: Colors.white, fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    // Left resize handle
+                                    Positioned(
+                                      left: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: GestureDetector(
+                                        onPanStart: (details) {
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+                                            double noteXPosition = note.startTime; // The current X position of the note
+                                            
+                                            // Calculate the offset between the click position and the note's startTime
+                                            initialMouseOffsetX = clickXPosition - noteXPosition;
+                                          });
+                                        },
+                              
+                                        onPanUpdate: (details) {
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+
+                                            // Apply the offset and snap to grid
+                                            double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
+                                            double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
+                                            
+                                            // Adjust startTime and duration when resizing from the left
+                                            double difference = note.startTime - mouseGridX;
+
+                                            if (mouseGridX >= note.startTime + note.duration) {
+                                              return;
+                                            }
+
+                                            if (mouseGridX < 0) {
+                                              return;
+                                            }
+
+
+                                            note.startTime = mouseGridX;
+                                            note.duration += difference;
+
+                                            if (note.duration < snap_step) {
+                                              note.duration = snap_step; // Minimum duration limit
+                                            }
+                                            
+                                          });
+                                        },
+                                        child: MouseRegion(
+                                          cursor: SystemMouseCursors.resizeLeftRight,
+                                          child: Container(
+                                            width: 10, // Handle width
+                                            color: Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // Right resize handle
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: GestureDetector(
+                                        onPanStart: (details) {
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+                                            double noteXPosition = note.startTime; // The current X position of the note
+                                            
+                                            // Calculate the offset between the click position and the note's startTime
+                                            initialMouseOffsetX = clickXPosition - noteXPosition;
+
+                                            // Save initial note duration
+                                            initialNoteDuration = note.duration;
+                                          });
+                                        },
+
+                                        onPanUpdate: (details) {
+                                          setState(() {
+                                            double clickXPosition = details.globalPosition.dx;
+                                            
+                                            // Apply the offset and snap to grid
+                                            double adjustedMouseX = clickXPosition - initialMouseOffsetX!;
+                                            double mouseGridX = (adjustedMouseX / snap_step).floor() * snap_step;
+
+                                            // Initial duration position
+                                            note.duration = initialNoteDuration! + (mouseGridX - note.startTime);
+
+                                            if (note.duration < snap_step) {
+                                              note.duration = snap_step; // Minimum duration limit
+                                            }
+                                            
+                                            // Save last note duration
+                                            lastNoteDuration = note.duration;
+                                          });
+                                        },
+                                        child: MouseRegion(
+                                          cursor: SystemMouseCursors.resizeLeftRight,
+                                          child: Container(
+                                            width: 10, // Handle width
+                                            color: Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              )
+                              
+                              // child: Container(
+                              //   decoration: BoxDecoration(
+                              //     color: Color.fromARGB(255, 50, 168, 50),
+                              //     border: Border.all(color: Color.fromARGB(255, 71, 201, 71), width: 2)
+                              //   ),
+
+                              //   width: note.duration.toDouble(), // Duration represented as width
+                              //   height: 40, // Fixed height for each note
+                              //   //color: Colors.blue.withOpacity(0.6), // Color for the note rectangle
+                              //   child: Center(
+                              //     child: Text(
+                              //       note.noteName,
+                              //       style: TextStyle(color: Colors.white, fontSize: 10),
+                              //     ),
+                              //   ),
+                              // ),
                             ),
+                            )
                           );
                         }).toList(),
                       ],
@@ -434,6 +601,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
             ),
           ],
         ),
+        
         // Linha da seta/marcador
         getLine(_markerPosition, screenHeight, 200),
       ],
@@ -441,18 +609,44 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   }
 }
 
-class NoteGridWidget extends StatefulWidget {
-  const NoteGridWidget({super.key});
+class VerticalGridPainter extends CustomPainter {
+  final double stepGrid; // The value for the vertical grid steps
+
+  VerticalGridPainter({required this.stepGrid});
 
   @override
-  _NoteGridWidgetState createState() => _NoteGridWidgetState();
-}
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(0.1) // Vertical grid color
+      ..strokeWidth = 1; // Width of the grid lines
 
-class _NoteGridWidgetState extends State<NoteGridWidget> {
+    final paint2 = Paint()
+      ..color = Colors.black.withOpacity(0.4) // Vertical grid color
+      ..strokeWidth = 1;
+
+    // Draw vertical lines based on step_grid value
+    for (double x = stepGrid; x < size.width; x += stepGrid) {
+      canvas.drawLine(
+        Offset(x, 0), // Starting point of the line (x, y)
+        Offset(x, size.height), // Ending point of the line (x, y)
+        paint,
+      );
+    }
+
+    // Draw vertical line further apart
+    double bigStepGrid = stepGrid * 16;
+    for (double x = bigStepGrid; x < size.width; x += bigStepGrid) {
+      canvas.drawLine(
+        Offset(x, 0), // Starting point of the line (x, y)
+        Offset(x, size.height), // Ending point of the line (x, y)
+        paint2,
+      );
+    }
+
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(children: []),
-    );
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true; // Always repaint in case the step grid changes
   }
 }
