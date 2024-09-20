@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:maisound/classes/globals.dart';
 // For rootBundle
 
 
@@ -52,7 +53,7 @@ class Instrument {
     AudioPlayer notePlayer = AudioPlayer();
     
     // Define o volume inicial
-    notePlayer.setVolume(volume);
+    notePlayer.setVolume(volume * master_volume);
 
     // Toca o som usando assets
     await notePlayer.play(AssetSource(sounds[key]!));

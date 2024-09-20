@@ -91,7 +91,7 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                 activeColor: FlutterFlowTheme.of(context).primary,
                 inactiveColor: FlutterFlowTheme.of(context).alternate,
                 min: 0,
-                max: 10,
+                max: 1,
                 value: master_volume,
                 onChanged: (newValue) {
                   setState(() {

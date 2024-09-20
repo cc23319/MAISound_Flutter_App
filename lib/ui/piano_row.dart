@@ -94,7 +94,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
       Note current_note = widget.track.notes[i];
 
       if (playing_notes.contains(current_note)) {
-        if (_markerPosition > current_note.startTime + current_note.duration) {
+        if (_markerPosition < current_note.startTime || _markerPosition > current_note.startTime + current_note.duration) {
           playing_notes.remove(current_note);
           widget.track.instrument.stopSound(current_note.noteName);
         }
