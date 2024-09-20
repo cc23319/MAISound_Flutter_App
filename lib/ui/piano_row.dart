@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
 import 'package:maisound/ui/marker.dart';
 
@@ -85,7 +86,26 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   // Posição do marcador de tempo na track
   double _markerPosition = 0.0;
 
+  // Notes that are being played currently
+  List<Note> playing_notes = [];
   void _updateMarkerPosition(double newPosition) {
+    // Play music
+    for(var i = 0; i < widget.track.notes.length; i++){
+      Note current_note = widget.track.notes[i];
+
+      if (playing_notes.contains(current_note)) {
+        if (_markerPosition > current_note.startTime + current_note.duration) {
+          playing_notes.remove(current_note);
+          widget.track.instrument.stopSound(current_note.noteName);
+        }
+      } else {
+        if (_markerPosition > current_note.startTime && _markerPosition < current_note.startTime + current_note.duration) {
+          playing_notes.add(current_note);
+          widget.track.instrument.playSound(current_note.noteName);
+        }
+      }
+    }
+
     setState(() {
       _markerPosition = newPosition;
     });
@@ -215,41 +235,131 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
                   // Grid se extendendo a direita
                   Expanded(
-                    child: Container(
-                      color: Colors.transparent, // Background da grid
-                      child: GridView.builder(
-                        itemCount: _notes.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1, // 1 coluna para cada grid
-                          mainAxisExtent: 40,
-                          //childAspectRatio: 1, // Adjust for note height
+  child: Stack(
+    children: [
+      // The grid itself
+      Container(
+        color: Colors.transparent, // Background of the grid
+        child: GridView.builder(
+          itemCount: _notes.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 1, // 1 column for each grid
+            mainAxisExtent: 40,
+          ),
+          itemBuilder: (context, index) {
+            return DragTarget<Note>(
+              onWillAccept: (data) {
+                // Optionally highlight the grid when dragging over it
+                return true;
+              },
+              onAccept: (Note draggedNote) {
+                // Update note position to the new grid row
+                setState(() {
+                  draggedNote.noteName = _notes[_notes.length - index - 1].keys.first;
+                });
+              },
+              builder: (context, candidateData, rejectedData) {
+                return GestureDetector(
+                  onTapDown: (TapDownDetails details) {
+                    double clickXPosition = details.localPosition.dx;
+
+                    // The note being pressed
+                    String notePressed = _notes[_notes.length - index - 1].keys.first;
+                    _onNotePressed(notePressed);
+
+                    // Add a note to the track
+                    widget.track.notes.add(Note(
+                      noteName: notePressed, 
+                      startTime: clickXPosition, 
+                      duration: 100, // Example duration for now
+                    ));
+                    setState(() {}); // Rebuild the widget to reflect the new note
+                  },
+                  onTapUp: (TapUpDetails details) {
+                    // The note being released
+                    String noteReleased = _notes[_notes.length - index - 1].keys.first;
+                    _onNoteReleased(noteReleased);
+                  },
+                  child: Container(
+                    height: 56, // Fixed height for each grid row
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          width: 0.5,
                         ),
-                        itemBuilder: (context, index) {
-                          return Container(
-                            height: 56, // Altura fixa para cada linha da grid
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                    color: const Color.fromARGB(255, 0, 0, 0),
-                                    width: 0.5),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                // Add content for each grid row, if needed
-                                Expanded(
-                                  child: Container(
-                                    color: Color.fromARGB(54, 5, 5,
-                                        5), // Background color of the grid
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
                       ),
                     ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            color: Color.fromARGB(54, 5, 5, 5), // Background color of the grid
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+
+      // Display the notes as draggable rectangles on top of the grid
+      ...widget.track.notes.map((note) {
+        // Reverse the vertical positioning for correct display
+        int noteIndex = _notes.indexWhere((n) => n.keys.first == note.noteName);
+        double topPosition = (_notes.length - noteIndex - 1) * 40; // Reverse index for correct position
+
+        return Positioned(
+          left: note.startTime, // Horizontal position based on startTime
+          top: topPosition.toDouble(), // Corrected vertical position
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                // Update the horizontal position
+                note.startTime += details.delta.dx;
+
+                // Calculate the new row based on vertical dragging
+                double newTopPosition = topPosition + details.delta.dy;
+                int newNoteIndex = (_notes.length - 1) - (newTopPosition / 40).floor();
+
+                // Ensure the new index is within valid bounds
+                if (newNoteIndex >= 0 && newNoteIndex < _notes.length) {
+                  note.noteName = _notes[newNoteIndex].keys.first;
+                }
+              });
+            },
+            onPanEnd: (details) {
+              // When the dragging ends, update the note's final position
+              setState(() {
+                // Ensure the note's final position is within the grid bounds
+                if (note.startTime < 0) {
+                  note.startTime = 0;
+                }
+              });
+            },
+            child: Container(
+              width: note.duration.toDouble(), // Duration represented as width
+              height: 40, // Fixed height for each note
+              color: Colors.blue.withOpacity(0.6), // Color for the note rectangle
+              child: Center(
+                child: Text(
+                  note.noteName,
+                  style: TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    ],
+  ),
+)
+
+
                 ],
               ),
             ),

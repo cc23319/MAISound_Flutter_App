@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 
 class Note {
-  final String noteName;
-  final double startTime;
-  final double duration;
+  String noteName;
+  double startTime;
+  double duration;
 
   Note({
     required this.noteName,

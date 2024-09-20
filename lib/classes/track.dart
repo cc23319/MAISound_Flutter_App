@@ -6,10 +6,10 @@ class Track {
   
   // Notas associada a esta track
   // Formato [[Name, Start, Duration] ...]
-  late List<Note> notes;
+  late List<Note> notes = [];
 
   Track(Instrument inst) {
     instrument = inst;
-    notes = List.empty();
+    //notes = List.empty();
   }
 }
