@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maisound/cadastro_page.dart';
 import 'package:maisound/classes/globals.dart';
+import 'package:maisound/project_page.dart';
 import 'package:maisound/track_page.dart';
 
 class ControlBarWidget extends StatefulWidget {
@@ -82,6 +83,26 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   onPressed: () {},
                 ),
 
+                // Alternate between selected track and project page
+                FlutterFlowIconButton(
+                  borderColor: const Color(0xFF242436),
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  buttonSize: 40,
+                  fillColor: const Color(0xFF4B4B5B),
+                  icon: const Icon(Icons.piano, color: Colors.white, size: 24),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) => ProjectPageWidget(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                ),
+
                 // Play Track/Project
                 FlutterFlowIconButton(
                   borderColor: const Color(0xFF242436),
@@ -128,7 +149,9 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   fillColor: const Color(0xFF4B4B5B),
                   icon: const Icon(Icons.fast_rewind,
                       color: Colors.white, size: 24),
-                  onPressed: () {},
+                  onPressed: () {
+                    recorder.setTimestamp(0.0);
+                  },
                 ),
 
                 // Botão de pausar

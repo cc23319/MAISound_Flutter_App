@@ -157,13 +157,11 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   // Quando alguma nota é pressionada esta função e chamada
   void _onNotePressed(String note) {
     widget.track.instrument.playSound(note);
-    //print('$note pressed');
   }
 
   // Quando alguma nota para de ser pressionada esta função é chamada
   void _onNoteReleased(String note) {
     widget.track.instrument.stopSound(note);
-    //print('$note released');
   }
 
   @override

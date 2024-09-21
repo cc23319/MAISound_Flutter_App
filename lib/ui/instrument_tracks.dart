@@ -360,10 +360,14 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                           recorder.setTrack(track, trackStructure[1]);
 
                                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)));
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)),
-                                          );
+                                         Navigator.pushReplacement(
+                                          context,
+                                          PageRouteBuilder(
+                                              pageBuilder: (context, animation1, animation2) => TrackPageWidget(track: track),
+                                              transitionDuration: Duration.zero,
+                                              reverseTransitionDuration: Duration.zero,
+                                          ),
+                                        );
                                         },
                                     ),
                                     
