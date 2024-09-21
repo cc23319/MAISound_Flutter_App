@@ -160,7 +160,11 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   icon: const Icon(Icons.fast_rewind,
                       color: Colors.white, size: 24),
                   onPressed: () {
-                    recorder.setTimestamp(0.0, inTrack);
+                    if (recorder.playOnlyTrack.value || inTrack) {
+                      recorder.setTimestamp(0.0, true);
+                    } else {
+                      recorder.setTimestamp(0.0, false);
+                    }
                   },
                 ),
 
