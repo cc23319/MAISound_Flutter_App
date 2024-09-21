@@ -8,6 +8,9 @@ class Track {
   // Formato [[Name, Start, Duration] ...]
   late List<Note> notes = [];
 
+  // Quando a track começa no projeto
+  double startTime = 0.0;
+
   // Duração da track
   // A duração da track é a posição da ultima nota + seu tamanho
   double duration = 128.0;

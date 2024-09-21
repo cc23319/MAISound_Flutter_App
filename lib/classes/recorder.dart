@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
@@ -6,30 +7,22 @@ import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
 
 class Recorder {
-
-  // Track atual selecionada (Caso esteja no modo de tocar track individualmente, esta será tocada)
-  Track? track;
-
   // Modo de tocar track individual
   // Caso True: Toca apenas a track selecionada
   // Caso False: Toca o projeto inteiro a partir da timestamp do projeto
   ValueNotifier<bool> playOnlyTrack = ValueNotifier<bool>(false);
 
-  // Posição relativa da track selecionada atual
-  // Esta é a posição da track em relação ao projeto inteiro
-  double absoluteTrackPosition = 0.0;
-
   // Timestamp na track atual (É uma posição relativa)
   ValueNotifier<double> currentTimestamp = ValueNotifier<double>(0.0);
 
   // Timestamp no projeto inteiro (É uma posição absoluta)
-  ValueNotifier<double> currentProjectTimestamp = ValueNotifier<double>(0.0);
+  //ValueNotifier<double> currentProjectTimestamp = ValueNotifier<double>(0.0);
 
   // Este timer serve para dar update no recorder
   Timer? _timer;
 
   // Notas a serem tocadas e paradas
-  List<List<dynamic>> toPlay = [];
+  List<List<dynamic>> toPlay = []; // [Note, instrumentIndex, startTime]
   List<List<dynamic>> playingNotes = []; // [Note, InstrumentIndex, stopTime]
 
   Recorder() {
@@ -43,10 +36,22 @@ class Recorder {
     });
   }
 
+  // Caso TRUE:  retorna a posição do marcador na track atual (Tempo relativo)
+  // Caso FALSE: retorna a posição do marcador no projeto (Tempo absoluto)
+  double getTimestamp(bool inTrackPosition) {
+    if (inTrackPosition && currentTrack != null) {
+      return currentTimestamp.value - currentTrack!.startTime;
+    }
+    return currentTimestamp.value;
+  }
+
   // Muda a timestamp do recorder
-  void setTimestamp(double timestamp) {
-    currentTimestamp.value = timestamp;
-    currentProjectTimestamp.value = timestamp;
+  void setTimestamp(double timestamp, bool inTrackPosition) {
+    if (inTrackPosition && currentTrack != null) {
+      currentTimestamp.value = timestamp + currentTrack!.startTime;
+    } else {
+      currentTimestamp.value = timestamp;
+    }
 
     // Caso a musica ainda esteja sendo tocada, para e começa a tocar ela devolta (impede alguns bugs)
     if (playingCurrently.value) {
@@ -58,21 +63,21 @@ class Recorder {
   void update() {
     // Atualiza a posição da timestamp na track e no projeto
     currentTimestamp.value += BPM / 60;
-    currentProjectTimestamp.value += BPM / 60;
 
     // Toca as notas conforme o tempo passa
-    while (toPlay.isNotEmpty && currentTimestamp.value >= toPlay[0][0].startTime) {
+    while (toPlay.isNotEmpty && currentTimestamp.value >= toPlay[0][2]) { // Use adjustedStartTime (3rd value)
       // Remove nota que esta sendo tocada da lista de notas a serem tocadas
       List<dynamic> nextToPlay = toPlay.removeAt(0);
       Note note = nextToPlay[0];
       int instrumentIndex = nextToPlay[1];
+      double adjustedStartTime = nextToPlay[2];
 
       // Toca a nota
       instruments[instrumentIndex].playSound(note.noteName);
 
       // Calcula quando deve parar de tocar e adiciona a lista de notas a serem paradas
-      double stopTime = note.startTime + note.duration;
-      playingNotes.add([note, instrumentIndex, stopTime]);
+      double stopTime = adjustedStartTime + note.duration;
+      playingNotes.add([note, instrumentIndex, stopTime]); // Store the adjusted stop time
     }
 
     // Pare de tocar as notas que passaram do tempo de duração
@@ -88,39 +93,83 @@ class Recorder {
       }
     }
 
+    // Optionally stop when no more notes to play or stop
     // if (toPlay.isEmpty && playingNotes.isEmpty) {
     //   stop();
     // }
-  }
 
-  // Defini qual é a track atualmente selecionada e sua posição absoluta no projeto
-  void setTrack(Track? track, double absoluteTrackPosition) {
-    this.track = track;
-    this.absoluteTrackPosition = absoluteTrackPosition;
+    // Terminou a track começa denovo
+    if (playOnlyTrack.value) {
+      if (currentTimestamp.value >= currentTrack!.startTime + currentTrack!.duration) {
+        stop();
+        setTimestamp(0, true);
+        play();
+      }
+    }
   }
   
   // Começa a tocar a musica
   void play() {
     stop();
 
+    if (playOnlyTrack.value && currentTrack == null) {
+      return;
+    }
+
     // Modo de track unica
     // Procura por todas as notas que serão tocadas a partir do momento atual
-    if (playOnlyTrack.value && track != null) {
-      List<Note> notes = track!.getNotes();
-      int instrumentIndex = instruments.indexOf(track!.instrument);
+    if (playOnlyTrack.value && currentTrack != null) {
+      // double timestamp = getTimestamp(true);
 
-      for (int i = 0; i < notes.length; i++) {
-        Note note = notes[i];
+      // List<Note> notes = currentTrack!.getNotes();
+      // int instrumentIndex = instruments.indexOf(currentTrack!.instrument);
 
-        if (currentTimestamp.value <= note.startTime) {
-          toPlay.add([note, instrumentIndex]);
+      // for (int i = 0; i < notes.length; i++) {
+      //   Note note = notes[i];
+
+      //   if (timestamp <= note.startTime) {
+      //     toPlay.add([note, instrumentIndex, note.startTime]);
+      //   }
+      // }
+
+      Track track = currentTrack!;//[0];
+      double trackStartTime = track.startTime;//[1]; // The start time for this track
+      List<Note> notes = track.getNotes();
+      int instrumentIndex = instruments.indexOf(track.instrument);
+
+      // Collect all the notes from the track
+      for (Note note in notes) {
+        double adjustedStartTime = trackStartTime + note.startTime;
+        
+        // Only add the notes that are not yet past the current timestamp
+        if (currentTimestamp.value <= adjustedStartTime) {
+          toPlay.add([note, instrumentIndex, adjustedStartTime]);
         }
       }
     }
     
     // Modo de tocar o projeto inteiro (multiplas tracks simultaneamente)
     if (!playOnlyTrack.value) {
+      // Iterate over each track in tracks_structure
+      for (var trackEntry in tracks) {
+        Track track = trackEntry;//[0];
+        double trackStartTime = trackEntry.startTime;//[1]; // The start time for this track
+        List<Note> notes = track.getNotes();
+        int instrumentIndex = instruments.indexOf(track.instrument);
 
+        // Collect all the notes from the track
+        for (Note note in notes) {
+          double adjustedStartTime = trackStartTime + note.startTime;
+          
+          // Only add the notes that are not yet past the current timestamp
+          if (currentTimestamp.value <= adjustedStartTime) {
+            toPlay.add([note, instrumentIndex, adjustedStartTime]);
+          }
+        }
+      }
+
+      // Sort the notes by their adjusted start time to ensure they are played in the correct order
+      toPlay.sort((a, b) => a[2].compareTo(b[2])); // Compare by adjustedStartTime
     }
 
     // Começa o update do recorder

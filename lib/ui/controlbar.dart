@@ -114,6 +114,16 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   onPressed: () {
                     setState(() {
                       recorder.playOnlyTrack.value = !recorder.playOnlyTrack.value;
+
+                      // Deixa o marcador na posição 0 relativa a track caso a posição atual seja incompativel com a track
+                      
+                      if (currentTrack != null) {
+                        double timestamp = recorder.getTimestamp(true);
+                        if (timestamp < 0 || timestamp > currentTrack!.duration) {
+                          recorder.setTimestamp(0, true);
+                        }
+                      }
+
                     });
                   },
                 ),
@@ -150,7 +160,7 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   icon: const Icon(Icons.fast_rewind,
                       color: Colors.white, size: 24),
                   onPressed: () {
-                    recorder.setTimestamp(0.0);
+                    recorder.setTimestamp(0.0, inTrack);
                   },
                 ),
 

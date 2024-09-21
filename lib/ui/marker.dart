@@ -34,14 +34,15 @@ class _TimestampMarkerState extends State<TimestampMarker> {
   double _markerPosition = 0.0;
 
   void _onTap(BuildContext context, TapDownDetails details) {
-    if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
+    //if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
 
     // Pega posição X relativa ao container
     final RenderBox box = context.findRenderObject() as RenderBox;
     final localPosition = box.globalToLocal(details.globalPosition);
-    recorder.setTimestamp(localPosition.dx);
+
+    recorder.setTimestamp(localPosition.dx, widget.trackMarker);
     setState(() {
-      _markerPosition = localPosition.dx;
+      _markerPosition = recorder.getTimestamp(widget.trackMarker);
 
       // Notifica a classe pai da mudança
       widget.onPositionChanged(_markerPosition);
@@ -50,18 +51,23 @@ class _TimestampMarkerState extends State<TimestampMarker> {
 
   @override
   void initState() {
+    _markerPosition = recorder.getTimestamp(widget.trackMarker);
 
-    if (widget.trackMarker) {
-      recorder.currentTimestamp.addListener(() {
-        _markerPosition = recorder.currentTimestamp.value;
-      });
-    } else {
-      recorder.currentProjectTimestamp.addListener(() {
-        if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
+    recorder.currentTimestamp.addListener(() {
+      _markerPosition = recorder.getTimestamp(widget.trackMarker);
+    });
 
-        _markerPosition = recorder.currentProjectTimestamp.value;
-      });
-    }
+    // if (widget.trackMarker) {
+    //   recorder.currentTimestamp.addListener(() {
+    //     _markerPosition = recorder.getTimestamp(true);//recorder.currentTimestamp.value;
+    //   });
+    // } else {
+    //   recorder.currentProjectTimestamp.addListener(() {
+    //     if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
+
+    //     _markerPosition = recorder.currentProjectTimestamp.value;
+    //   });
+    // }
 
     super.initState();
   }

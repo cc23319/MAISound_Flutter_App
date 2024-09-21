@@ -15,7 +15,10 @@ double BPM = 130; // Influencia o quão rapido o valor de timestamp aumenta
 double timestamp =
     0.00; // Timestamp da musica em geral (Não é de uma track individual)
 ValueNotifier<bool> playingCurrently = ValueNotifier<bool>(false);
-Track? playingTrack;
+
+// If a track is currently open
+bool inTrack = false;
+Track? currentTrack; // Track selecionada
 
 // Lista de instrumentos do projeto
 List<Instrument> instruments = [Instrument()];
@@ -25,7 +28,7 @@ List<Track> tracks = [];
 
 // Estruturação da pagina principal e o tempo de cada track
 // [Track (Referencia a uma das track na lista tracks), Tempo de inicio]
-List tracks_structure = [];
+// List tracks_structure = [];
 
 // Global recorder
 final Recorder recorder = Recorder();

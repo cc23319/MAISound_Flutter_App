@@ -22,30 +22,33 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
   List<String> availableInstruments = ["Piano", "Bass"];
 
   void _updateMarkerPosition(double newPosition) {
-    if (mounted) {
-      setState(() {
-        _markerPosition = newPosition;
-      });
-    }
+    setState(() {
+      _markerPosition = newPosition;
+    });
   }
 
   @override
   void initState() {
-    recorder.currentProjectTimestamp.addListener(() {
-      _markerPosition = recorder.currentProjectTimestamp.value;
+    recorder.currentTimestamp.addListener(() {
+      //_markerPosition = recorder.currentProjectTimestamp.value;
+      //_markerPosition = recorder.getTimestamp(false);
 
       setState(() {
-        
+        _updateMarkerPosition(recorder.getTimestamp(false));
       });
     });
 
-    recorder.playOnlyTrack.addListener(() {
-      setState(() {
+    // recorder.playOnlyTrack.addListener(() {
+    //   setState(() {
         
-      });
-    });
+    //   });
+    // });
 
     super.initState();
+
+    setState(() {
+       _updateMarkerPosition(recorder.getTimestamp(false));
+    });
   }
 
   // Notes that are being played currently
@@ -105,7 +108,8 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
     setState(() {
       Track newTrack = Track(instrument);
       tracks.add(newTrack);
-      tracks_structure.add([newTrack, start]);
+      newTrack.startTime = start;
+      //tracks.add([newTrack, start]);
     });
   }
 
@@ -258,11 +262,15 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                           final instrument = instruments[index];
                           
                           // Filtra as tracks e obtem apenas as pertencentes ao instrumento atual
-                          final instrumentTracks = tracks_structure.where((trackStructure) {
-                            Track track = trackStructure[0];
+                          // final instrumentTracks = tracks_structure.where((trackStructure) {
+                          //   Track track = trackStructure[0];
+                          //   return track.instrument == instrument;
+                          // }).toList();
+                          
+                          final instrumentTracks = tracks.where((Track track) {
                             return track.instrument == instrument;
                           }).toList();
-                          
+
                           return GestureDetector(
                             child: Stack(
                               children: [
@@ -274,9 +282,10 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                 ),
 
                                 // Constroi a track para o instrumento atual
-                                ...instrumentTracks.map((trackStructure) {
-                                  Track track = trackStructure[0];
-                                  double startTime = trackStructure[1];
+                                ...instrumentTracks.map((Track track) {
+                                  //Track track = trackStructure[0];
+                                  //double startTime = trackStructure[1];
+                                  double startTime = track.startTime;
 
                                   return Positioned(
                                     left: startTime,
@@ -348,7 +357,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                             double mouseGridX = (adjustedMouseX / snapStep).floor() * snapStep;
 
                                             // Atualiza posição da musica
-                                            trackStructure[1] = mouseGridX;
+                                            track.startTime = mouseGridX;
                                           });
                                         },
                                         onPanEnd: (details) {
@@ -357,7 +366,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                           });
                                         },
                                         onDoubleTap: () {
-                                          recorder.setTrack(track, trackStructure[1]);
+                                          //recorder.setTrack(track, track.startTime);
 
                                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)));
                                          Navigator.pushReplacement(

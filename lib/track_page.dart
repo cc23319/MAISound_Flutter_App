@@ -24,16 +24,21 @@ class _TrackPageWidgetState extends State<TrackPageWidget> {
   // Desabilita clique com botão direito de abrir a janela padrão 
   @override
   void initState() {
+    currentTrack = widget.track;
+    
     // Só é possivel deste if acontecer se voce abrir diretamente esta pagina
-    if (recorder.track == null) {
-      recorder.setTrack(widget.track, 0.0);
-    }
-
+    inTrack = true;
     super.initState();
 
     //recorder.setTrack(track);
     // Prevent default event handler
     document.onContextMenu.listen((event) => event.preventDefault());
+  }
+
+  @override
+  void dispose() {
+    inTrack = false;
+    super.dispose();
   }
 
   @override

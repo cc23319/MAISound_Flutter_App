@@ -110,14 +110,20 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
 
   @override
   void initState() {
+    //recorder.setTimestamp(widget.track.startTime, true);
+
     recorder.currentTimestamp.addListener(() {
-      _markerPosition = recorder.currentTimestamp.value;
+      _markerPosition = recorder.getTimestamp(true);
 
       setState(() {
       });
     });
 
     super.initState();
+
+    setState(() {
+      _updateMarkerPosition(recorder.getTimestamp(true));
+    });
   }
 
 
