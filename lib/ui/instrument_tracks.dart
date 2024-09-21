@@ -38,6 +38,11 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
       });
     });
 
+    recorder.playOnlyTrack.addListener(() {
+      setState(() {
+      });
+    });
+
     // recorder.playOnlyTrack.addListener(() {
     //   setState(() {
         
@@ -333,6 +338,18 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                                 color: Colors.blue, // Replace with your desired color
                                               ),
                                             ),
+
+                                            // Draw playback bar
+                                            if (currentTrack == track && playingCurrently.value == true)
+                                              Positioned(
+                                                top: 30.0,
+                                                left: recorder.getTimestamp(true),
+                                                width: 2,
+                                                height: 90,
+                                                child: Container(
+                                                  color: Colors.green, // Replace with your desired color
+                                                ),
+                                              )
                                           ],
                                         ),
 
@@ -364,6 +381,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                           // Quando para de arrastar o mouse corrige algumas coisas e atualiza a widget
                                           setState(() {
                                           });
+                                        },
+                                        onTap: () {
+                                          currentTrack = track;
                                         },
                                         onDoubleTap: () {
                                           //recorder.setTrack(track, track.startTime);

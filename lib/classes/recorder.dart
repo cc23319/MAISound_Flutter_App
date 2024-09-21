@@ -60,7 +60,17 @@ class Recorder {
     }
   }
 
+  // Tocando a track... (Usado para descobrir quando uma track mudou de repente)
+  Track? playingTheTrack;
+
   void update() {
+    // Track mudou do nada
+    if (playOnlyTrack.value && playingTheTrack != currentTrack) {
+      stop();
+      setTimestamp(0.0, true);
+      play();
+    }
+
     // Atualiza a posição da timestamp na track e no projeto
     currentTimestamp.value += BPM / 60;
 
@@ -146,6 +156,8 @@ class Recorder {
           toPlay.add([note, instrumentIndex, adjustedStartTime]);
         }
       }
+
+      playingTheTrack = currentTrack;
     }
     
     // Modo de tocar o projeto inteiro (multiplas tracks simultaneamente)
