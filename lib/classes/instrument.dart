@@ -223,35 +223,4 @@ class Instrument {
       }
     }
   }
-
-  bool isNumeric(String s) {
-    if (s.isEmpty) {
-      return false;
-    }
-    try {
-      double.parse(s);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  String normalizeName(String key) {
-    String normalKey = "";
-    if (isNumeric(key[0])) {
-      List<String> parts = key.split("-");
-      String octave = parts[0];
-      String keyName = parts[1];
-
-      normalKey += keyName[0];
-      if (keyName.length == 2) {
-        normalKey += "#";
-      }
-      normalKey += octave;
-    } else {
-      normalKey = key;
-    }
-
-    return normalKey.toUpperCase();
-  }
 }

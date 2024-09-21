@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
 import 'package:maisound/ui/controlbar.dart';
@@ -23,7 +24,14 @@ class _TrackPageWidgetState extends State<TrackPageWidget> {
   // Desabilita clique com botão direito de abrir a janela padrão 
   @override
   void initState() {
+    // Só é possivel deste if acontecer se voce abrir diretamente esta pagina
+    if (recorder.track == null) {
+      recorder.setTrack(widget.track, 0.0);
+    }
+
     super.initState();
+
+    //recorder.setTrack(track);
     // Prevent default event handler
     document.onContextMenu.listen((event) => event.preventDefault());
   }

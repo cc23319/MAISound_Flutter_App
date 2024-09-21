@@ -17,10 +17,19 @@ class Track {
   int highestNoteIndex = -1;
   int noteRange = -1;
 
+  // Retorna as notas em ordem
+  List<Note> getNotes() {
+    return notes;
+  }
+
   void addNote(Note note) {
     notes.add(note);
+
+    // As notas são organizadas em ordem temporal
     notes.sort((a, b) => a.startTime.compareTo(b.startTime));
 
+    // Converte uma nota em um numero inteiro
+    // Procura pela nota mais alta, mais baixa e mais distante (a partir do ponto de inicio)
     int noteAsInteger = note.noteNameToInteger();
     if (lowestNoteIndex == -1 || noteAsInteger < lowestNoteIndex) {
       lowestNoteIndex = noteAsInteger;

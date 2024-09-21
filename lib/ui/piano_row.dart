@@ -100,46 +100,24 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   double? initialNoteDuration;
   double lastNoteDuration = 64;
 
-  // Notes that are being played currently
-  List<Note> playing_notes = [];
   void _updateMarkerPosition(double newPosition) {
-    if (playingCurrently.value) {
-      List<Note> notesToStart = [];
-      List<Note> notesToStop = [];
-
-      for (var note in widget.track.notes) {
-        if (note.startTime > _markerPosition) {
-          // If the note hasn't started yet, stop checking further (since notes are sorted)
-          break;
-        }
-
-        if (_markerPosition < note.startTime || _markerPosition > note.startTime + note.duration) {
-          if (playing_notes.contains(note)) {
-            notesToStop.add(note);
-          }
-        } else {
-          if (!playing_notes.contains(note)) {
-            notesToStart.add(note);
-          }
-        }
-      }
-
-      for (var note in notesToStop) {
-        playing_notes.remove(note);
-        widget.track.instrument.stopSound(note.noteName);
-      }
-
-      for (var note in notesToStart) {
-        playing_notes.add(note);
-        widget.track.instrument.playSound(note.noteName);
-      }
-    }
-
     if (mounted) {
       setState(() {
         _markerPosition = newPosition;
       });
     }
+  }
+
+  @override
+  void initState() {
+    recorder.currentTimestamp.addListener(() {
+      _markerPosition = recorder.currentTimestamp.value;
+
+      setState(() {
+      });
+    });
+
+    super.initState();
   }
 
 
@@ -200,7 +178,7 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
             // Marcador
             Padding(
               padding: EdgeInsets.only(left: 200),
-              child: TimestampMarker(onPositionChanged: _updateMarkerPosition),
+              child: TimestampMarker(onPositionChanged: _updateMarkerPosition, trackMarker: true),
             ),
 
             // Layout com piano ao lado esquerdo e grid ao lado direito

@@ -21,8 +21,9 @@ Widget getLine(_markerPosition, screenHeight, xoffset) {
 
 class TimestampMarker extends StatefulWidget {
   final Function(double) onPositionChanged; // Callback for position changes
+  bool trackMarker;
 
-  TimestampMarker({required this.onPositionChanged}); // callback
+  TimestampMarker({required this.onPositionChanged, required this.trackMarker}); // callback
 
   @override
   _TimestampMarkerState createState() => _TimestampMarkerState();
@@ -32,49 +33,13 @@ class _TimestampMarkerState extends State<TimestampMarker> {
   // Posição do marcador
   double _markerPosition = 0.0;
 
-  // Timer utilizado para aumentar a posição do marcador
-  Timer? _timer;
-
-  // Começa a incrementar a posição do marcador com base no BPM
-  void _startIncrementing() {
-    _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
-      _markerPosition += BPM / 60;
-      widget.onPositionChanged(_markerPosition); // Notifica a classe pai
-    });
-  }
-
-  // Para a incremnetação
-  void _stopIncrementing() {
-    if (_timer != null) {
-      _timer!.cancel();
-    }
-  }
-
-  // Quando esta classe é deixada de lado para de incrementar
-  @override
-  void dispose() {
-    _stopIncrementing();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Escuta a variavel global de tocar a musica
-    playingCurrently.addListener(() {
-      if (playingCurrently.value) {
-        _startIncrementing();
-      } else {
-        _stopIncrementing();
-      }
-    });
-  }
-
   void _onTap(BuildContext context, TapDownDetails details) {
+    if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
+
     // Pega posição X relativa ao container
     final RenderBox box = context.findRenderObject() as RenderBox;
     final localPosition = box.globalToLocal(details.globalPosition);
+    recorder.setTimestamp(localPosition.dx);
     setState(() {
       _markerPosition = localPosition.dx;
 
@@ -84,8 +49,39 @@ class _TimestampMarkerState extends State<TimestampMarker> {
   }
 
   @override
+  void initState() {
+
+    if (widget.trackMarker) {
+      recorder.currentTimestamp.addListener(() {
+        _markerPosition = recorder.currentTimestamp.value;
+      });
+    } else {
+      recorder.currentProjectTimestamp.addListener(() {
+        if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
+
+        _markerPosition = recorder.currentProjectTimestamp.value;
+      });
+    }
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return (!widget.trackMarker && recorder.playOnlyTrack.value) ?
+      Container(
+        height: 15,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color.fromARGB(255, 92, 92, 92).withOpacity(0.4), // Mais escuro ao topo
+              const Color.fromARGB(255, 155, 155, 155).withOpacity(0.1), // Mais claro embaixo
+            ],
+          ),
+        ),)
+    : GestureDetector(
       onTapDown: (details) => _onTap(context, details),
       child: Container(
         height: 15,

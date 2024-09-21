@@ -81,6 +81,21 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   icon: const Icon(Icons.menu, color: Colors.white, size: 24),
                   onPressed: () {},
                 ),
+
+                // Play Track/Project
+                FlutterFlowIconButton(
+                  borderColor: const Color(0xFF242436),
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  buttonSize: 40,
+                  fillColor: recorder.playOnlyTrack.value ? Color.fromARGB(255, 255, 125, 38) : const Color(0xFF4B4B5B),
+                  icon: Icon(recorder.playOnlyTrack.value ? Icons.headphones : Icons.headphones, color: Colors.white, size: 24),
+                  onPressed: () {
+                    setState(() {
+                      recorder.playOnlyTrack.value = !recorder.playOnlyTrack.value;
+                    });
+                  },
+                ),
               ],
             ),
 

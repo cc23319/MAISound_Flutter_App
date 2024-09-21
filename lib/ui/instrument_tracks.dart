@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
+import 'package:maisound/classes/recorder.dart';
 import 'package:maisound/classes/track.dart';
 import 'package:maisound/track_page.dart';
 import 'package:maisound/ui/marker.dart';
@@ -20,57 +21,80 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
 
   List<String> availableInstruments = ["Piano", "Bass"];
 
-  // void _updateMarkerPosition(double newPosition) {
-  //   setState(() {
-  //     _markerPosition = newPosition;
-  //   });
-  // }
+  void _updateMarkerPosition(double newPosition) {
+    if (mounted) {
+      setState(() {
+        _markerPosition = newPosition;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    recorder.currentProjectTimestamp.addListener(() {
+      _markerPosition = recorder.currentProjectTimestamp.value;
+
+      setState(() {
+        
+      });
+    });
+
+    recorder.playOnlyTrack.addListener(() {
+      setState(() {
+        
+      });
+    });
+
+    super.initState();
+  }
 
   // Notes that are being played currently
-  List<Note> playing_notes = [];
-  void _updateMarkerPosition(double newPosition) {
-    // Play music
-    if (playingCurrently.value && playingTrack == null) {
-      // Loop through tracks
-      for (var t = 0; t < tracks_structure.length; t++) {
-        Track track = tracks_structure[t][0];
-        double trackStart = tracks_structure[t][1];
+  // List<Note> playing_notes = [];
+  // void _updateMarkerPosition(double newPosition) {
+  //   // Play music
+  //   if (playingCurrently.value && playingTrack == null) {
+  //     // Loop through tracks
+  //     for (var t = 0; t < tracks_structure.length; t++) {
+  //       Track track = tracks_structure[t][0];
+  //       double trackStart = tracks_structure[t][1];
 
-        // Check if the track is relevant to the marker position
-        if (_markerPosition < trackStart) {
-          // Skip this track if it's not yet reached by the marker
-          continue;
-        }
+  //       // Check if the track is relevant to the marker position
+  //       if (_markerPosition < trackStart) {
+  //         // Skip this track if it's not yet reached by the marker
+  //         continue;
+  //       }
 
-        // Loop through notes in the track
-        for (var i = 0; i < track.notes.length; i++) {
-          Note current_note = track.notes[i];
+  //       // Loop through notes in the track
+  //       for (var i = 0; i < track.notes.length; i++) {
+  //         Note current_note = track.notes[i];
 
-          double noteStartTime = current_note.startTime + trackStart;
-          double noteEndTime = current_note.startTime + current_note.duration + trackStart;
+  //         double noteStartTime = current_note.startTime + trackStart;
+  //         double noteEndTime = current_note.startTime + current_note.duration + trackStart;
 
-          if (playing_notes.contains(current_note)) {
-            // Stop notes if marker is out of note's time range
-            if (_markerPosition < noteStartTime || _markerPosition > noteEndTime) {
-              playing_notes.remove(current_note);
-              track.instrument.stopSound(current_note.noteName);
-            }
-          } else {
-            // Play note if marker is within note's time range
-            if (_markerPosition > noteStartTime && _markerPosition < noteEndTime) {
-              playing_notes.add(current_note);
-              track.instrument.playSound(current_note.noteName);
-            }
-          }
-        }
-      }
-    }
+  //         if (playing_notes.contains(current_note)) {
+  //           // Stop notes if marker is out of note's time range
+  //           if (_markerPosition < noteStartTime || _markerPosition > noteEndTime) {
+  //             playing_notes.remove(current_note);
+  //             track.instrument.stopSound(current_note.noteName);
+  //           }
+  //         } else {
+  //           // Play note if marker is within note's time range
+  //           if (_markerPosition > noteStartTime && _markerPosition < noteEndTime) {
+  //             playing_notes.add(current_note);
+  //             track.instrument.playSound(current_note.noteName);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // Update the marker position
-    setState(() {
-      _markerPosition = newPosition;
-    });
-  }
+  //   // Update the marker position
+  //   if (mounted) {
+  //     setState(() {
+  //       _markerPosition = newPosition;
+  //     });
+  //   }
+  // }
 
   // Handle adding a track to the global list
   void _addTrackToPosition(Offset localPosition, int index, Instrument instrument) {
@@ -96,7 +120,7 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
             // Marcador do tempo
             Padding(
               padding: EdgeInsets.only(left: 400),
-              child: TimestampMarker(onPositionChanged: _updateMarkerPosition),
+              child: TimestampMarker(onPositionChanged: _updateMarkerPosition, trackMarker: false),
             ),
             Expanded(
               child: Row(
@@ -333,6 +357,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                           });
                                         },
                                         onDoubleTap: () {
+                                          recorder.setTrack(track, trackStructure[1]);
+
+                                         // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)));
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(builder: (context) => TrackPageWidget(track: track)),
@@ -359,7 +386,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
             ),
           ],
         ),
-        getLine(_markerPosition, screenHeight, 400)
+        Container(
+          child: recorder.playOnlyTrack.value ? SizedBox() : getLine(_markerPosition, screenHeight, 400)
+          )
       ],
     );
   }
