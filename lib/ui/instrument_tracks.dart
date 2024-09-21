@@ -18,7 +18,55 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
   double? initialMouseOffsetX;
   double snapStep = 64;
 
+  List<String> availableInstruments = ["Piano", "Bass"];
+
+  // void _updateMarkerPosition(double newPosition) {
+  //   setState(() {
+  //     _markerPosition = newPosition;
+  //   });
+  // }
+
+  // Notes that are being played currently
+  List<Note> playing_notes = [];
   void _updateMarkerPosition(double newPosition) {
+    // Play music
+    if (playingCurrently.value && playingTrack == null) {
+      // Loop through tracks
+      for (var t = 0; t < tracks_structure.length; t++) {
+        Track track = tracks_structure[t][0];
+        double trackStart = tracks_structure[t][1];
+
+        // Check if the track is relevant to the marker position
+        if (_markerPosition < trackStart) {
+          // Skip this track if it's not yet reached by the marker
+          continue;
+        }
+
+        // Loop through notes in the track
+        for (var i = 0; i < track.notes.length; i++) {
+          Note current_note = track.notes[i];
+
+          double noteStartTime = current_note.startTime + trackStart;
+          double noteEndTime = current_note.startTime + current_note.duration + trackStart;
+
+          if (playing_notes.contains(current_note)) {
+            // Stop notes if marker is out of note's time range
+            if (_markerPosition < noteStartTime || _markerPosition > noteEndTime) {
+              playing_notes.remove(current_note);
+              track.instrument.stopSound(current_note.noteName);
+            }
+          } else {
+            // Play note if marker is within note's time range
+            if (_markerPosition > noteStartTime && _markerPosition < noteEndTime) {
+              playing_notes.add(current_note);
+              track.instrument.playSound(current_note.noteName);
+            }
+          }
+        }
+      }
+    }
+
+    // Update the marker position
     setState(() {
       _markerPosition = newPosition;
     });
@@ -89,10 +137,39 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text(
-                                                  instrument.name,
-                                                  style:
-                                                      TextStyle(fontSize: 18),
+                                                // Nome do instrumento / Mudar instrumento
+                                                InkWell(
+                                                  onTap: () {
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return ListView.builder(
+                                                          itemCount: availableInstruments.length,  // List of available instruments
+                                                          itemBuilder: (context, idx) {
+                                                            final availableInstrument = availableInstruments[idx];
+                                                            return ListTile(
+                                                              title: Text(availableInstrument),
+                                                              onTap: () {
+                                                                setState(() {
+                                                                  if (availableInstrument == "Bass") {
+                                                                    instrument.setInstrumentType(InstrumentTypes.bass);
+                                                                  }
+                                                                  if (availableInstrument == "Piano") {
+                                                                    instrument.setInstrumentType(InstrumentTypes.piano);
+                                                                  }
+                                                                });
+                                                                Navigator.pop(context);  // Close the bottom sheet after selection
+                                                              },
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    instrument.name,
+                                                    style: TextStyle(fontSize: 18),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -300,18 +377,4 @@ double _calculateNoteHeight(int noteRange, double containerHeight) {
   return calculatedHeight.clamp(minNoteHeight, maxNoteHeight);
 }
 
-class VisualTrackWidget extends StatefulWidget {
-  const VisualTrackWidget({super.key});
 
-  @override
-  _VisualTrackWidgetState createState() => _VisualTrackWidgetState();
-}
-
-class _VisualTrackWidgetState extends State<VisualTrackWidget> {
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox();
-  }
-
-}

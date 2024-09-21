@@ -15,6 +15,7 @@ double BPM = 130; // Influencia o quão rapido o valor de timestamp aumenta
 double timestamp =
     0.00; // Timestamp da musica em geral (Não é de uma track individual)
 ValueNotifier<bool> playingCurrently = ValueNotifier<bool>(false);
+Track? playingTrack;
 
 // Lista de instrumentos do projeto
 List<Instrument> instruments = [Instrument()];

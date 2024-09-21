@@ -103,31 +103,45 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
   // Notes that are being played currently
   List<Note> playing_notes = [];
   void _updateMarkerPosition(double newPosition) {
-    // Play music
     if (playingCurrently.value) {
-      for(var i = 0; i < widget.track.notes.length; i++){
-        Note current_note = widget.track.notes[i];
+      List<Note> notesToStart = [];
+      List<Note> notesToStop = [];
 
-        if (playing_notes.contains(current_note)) {
-          if (_markerPosition < current_note.startTime || _markerPosition > current_note.startTime + current_note.duration) {
-            playing_notes.remove(current_note);
-            widget.track.instrument.stopSound(current_note.noteName);
+      for (var note in widget.track.notes) {
+        if (note.startTime > _markerPosition) {
+          // If the note hasn't started yet, stop checking further (since notes are sorted)
+          break;
+        }
+
+        if (_markerPosition < note.startTime || _markerPosition > note.startTime + note.duration) {
+          if (playing_notes.contains(note)) {
+            notesToStop.add(note);
           }
         } else {
-          if (_markerPosition > current_note.startTime && _markerPosition < current_note.startTime + current_note.duration) {
-            playing_notes.add(current_note);
-            widget.track.instrument.playSound(current_note.noteName);
+          if (!playing_notes.contains(note)) {
+            notesToStart.add(note);
           }
         }
+      }
+
+      for (var note in notesToStop) {
+        playing_notes.remove(note);
+        widget.track.instrument.stopSound(note.noteName);
+      }
+
+      for (var note in notesToStart) {
+        playing_notes.add(note);
+        widget.track.instrument.playSound(note.noteName);
       }
     }
 
     if (mounted) {
       setState(() {
-          _markerPosition = newPosition;
+        _markerPosition = newPosition;
       });
     }
   }
+
 
   @override
   void dispose() {

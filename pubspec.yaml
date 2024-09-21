@@ -30,6 +30,7 @@ dev_dependencies:
 flutter:
   assets:
       - assets/instruments/piano/
+      - assets/instruments/bass/
 
   uses-material-design: true
 

@@ -19,13 +19,14 @@ class Track {
 
   void addNote(Note note) {
     notes.add(note);
+    notes.sort((a, b) => a.startTime.compareTo(b.startTime));
 
     int noteAsInteger = note.noteNameToInteger();
     if (lowestNoteIndex == -1 || noteAsInteger < lowestNoteIndex) {
       lowestNoteIndex = noteAsInteger;
       noteRange = highestNoteIndex - lowestNoteIndex;
     }
-    
+
     if (highestNoteIndex == -1 || noteAsInteger > highestNoteIndex) {
       highestNoteIndex = noteAsInteger;
       noteRange = highestNoteIndex - lowestNoteIndex;  

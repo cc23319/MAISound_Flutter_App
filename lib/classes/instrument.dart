@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 // For rootBundle
 
-
+enum InstrumentTypes {
+  piano,
+  bass,
+}
 
 // Define the order of note letters
 List<String> noteLetterOrder = [
@@ -65,13 +68,27 @@ class Instrument {
   Map<String, AudioPlayer> activePlayers = {}; // Store active players for each note
   Map<String, bool> isFadingOut = {}; // Track whether a fade-out is in progress for each note
   double volume = 0.5;
-  String name = "Piano";
-  Color color = Color.fromARGB(255, 60, 104, 248);
+  String name = "Generic";
+  Color color = Colors.white;
   int maxSimultaneousNotes = 10; // Limit the number of notes played at the same time
   List<String> activeNotesOrder = []; // Track order of active notes
   
   Instrument() {
-    loadSounds();
+    // Por padrão um piano é carregado
+    setInstrumentType(InstrumentTypes.piano);
+  }
+
+  void setInstrumentType(InstrumentTypes type) {
+    if (type == InstrumentTypes.bass) {
+      name = "Bass";
+      color = Color.fromARGB(255, 218, 123, 47);
+    }
+    if (type == InstrumentTypes.piano) {
+      name = "Piano";
+      color = Color.fromARGB(255, 60, 104, 248);
+    }
+
+    loadSounds(type);
   }
 
   void playSound(String key) async {
@@ -181,44 +198,30 @@ class Instrument {
 
 
   // Carrega os sons dos assets (mesmo método que você já tem)
-  Future<void> loadSounds() async {
-    // Adiciona os caminhos das notas manualmente
-sounds["C3"] = "instruments/piano/3-c.wav";
-    sounds["C#3"] = "instruments/piano/3-cs.wav";
-    sounds["D3"] = "instruments/piano/3-d.wav";
-    sounds["D#3"] = "instruments/piano/3-ds.wav";
-    sounds["E3"] = "instruments/piano/3-e.wav";
-    sounds["F3"] = "instruments/piano/3-f.wav";
-    sounds["F#3"] = "instruments/piano/3-fs.wav";
-    sounds["G3"] = "instruments/piano/3-g.wav";
-    sounds["G#3"] = "instruments/piano/3-gs.wav";
-    sounds["A3"] = "instruments/piano/3-a.wav";
-    sounds["A#3"] = "instruments/piano/3-as.wav";
-    sounds["B3"] = "instruments/piano/3-b.wav";
-    sounds["C4"] = "instruments/piano/4-c.wav";
-    sounds["C#4"] = "instruments/piano/4-cs.wav";
-    sounds["D4"] = "instruments/piano/4-d.wav";
-    sounds["D#4"] = "instruments/piano/4-ds.wav";
-    sounds["E4"] = "instruments/piano/4-e.wav";
-    sounds["F4"] = "instruments/piano/4-f.wav";
-    sounds["F#4"] = "instruments/piano/4-fs.wav";
-    sounds["G4"] = "instruments/piano/4-g.wav";
-    sounds["G#4"] = "instruments/piano/4-gs.wav";
-    sounds["A4"] = "instruments/piano/4-a.wav";
-    sounds["A#4"] = "instruments/piano/4-as.wav";
-    sounds["B4"] = "instruments/piano/4-b.wav";
-    sounds["C5"] = "instruments/piano/5-c.wav";
-    sounds["C#5"] = "instruments/piano/5-cs.wav";
-    sounds["D5"] = "instruments/piano/5-d.wav";
-    sounds["D#5"] = "instruments/piano/5-ds.wav";
-    sounds["E5"] = "instruments/piano/5-e.wav";
-    sounds["F5"] = "instruments/piano/5-f.wav";
-    sounds["F#5"] = "instruments/piano/5-fs.wav";
-    sounds["G5"] = "instruments/piano/5-g.wav";
-    sounds["G#5"] = "instruments/piano/5-gs.wav";
-    sounds["A5"] = "instruments/piano/5-a.wav";
-    sounds["A#5"] = "instruments/piano/5-as.wav";
-    sounds["B5"] = "instruments/piano/5-b.wav";
+  Future<void> loadSounds(InstrumentTypes type) async {
+    sounds.clear();
+
+    // Parametros padrão para carregar um som
+    List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    List<int> octaves = [1, 2, 3, 4, 5, 6, 7, 8];
+    String? soundPath;
+
+    if (type == InstrumentTypes.piano) {
+      octaves = [3, 4, 5];
+      soundPath = "piano";
+    }
+    if (type == InstrumentTypes.bass) {
+      soundPath = "bass";
+    }
+
+    // Carrega as notas do instrumento
+    for (int octave in octaves) {
+      for (String note in notes) {
+        String noteKey = "$note$octave";
+        String fileName = "instruments/$soundPath/$octave-${note.toLowerCase().replaceAll('#', 's')}.wav";
+        sounds[noteKey] = fileName;
+      }
+    }
   }
 
   bool isNumeric(String s) {
