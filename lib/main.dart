@@ -6,9 +6,14 @@ import 'package:maisound/login_page.dart';
 import 'package:maisound/project_page.dart';
 //import 'package:maisound/project_page.dart';
 import 'package:maisound/track_page.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (context) => AuthProvider(),
+    child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +22,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false, title: 'MAISound', home: ProjectPageWidget());
+        debugShowCheckedModeBanner: false, title: 'MAISound', home: HomePage());
+  }
+}
+
+class AuthProvider with ChangeNotifier {
+  bool _isLoggedIn = false;
+
+  bool get isLoggedIn => _isLoggedIn;
+
+  void login() {
+    _isLoggedIn = true;
+    notifyListeners();
+  }
+
+  void logout() {
+    _isLoggedIn = false;
+    notifyListeners();
   }
 }
 

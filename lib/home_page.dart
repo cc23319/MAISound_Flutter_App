@@ -198,6 +198,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
+                    
                     // Botão de Novo Projeto
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -216,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           onPressed: () {
                             setState(() {
-                              // Abre a caixa de dialogo
+                              // Abre a caixa de dialogo para inserir o nome do projeto.
                               _showAddProjectDialog();
                             });
                           },
