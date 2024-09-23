@@ -33,6 +33,8 @@ class _TimestampMarkerState extends State<TimestampMarker> {
   // Posição do marcador
   double _markerPosition = 0.0;
 
+  Timer? _timer;
+
   void _onTap(BuildContext context, TapDownDetails details) {
     //if (!widget.trackMarker && recorder.playOnlyTrack.value) return;
 
@@ -69,7 +71,15 @@ class _TimestampMarkerState extends State<TimestampMarker> {
     //   });
     // }
 
+    _timer = Timer.periodic(Duration(milliseconds: 1), (_) {
+      setState(() {
+        _markerPosition = recorder.getTimestamp(widget.trackMarker);
+      });
+    });
+
     super.initState();
+
+  
   }
 
   @override

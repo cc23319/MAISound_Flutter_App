@@ -225,7 +225,8 @@ class _PianoRowWidgetState extends State<PianoRowWidget> {
                         ),
 
                         // Notas pretas
-                        Positioned.fill(
+                        Positioned(//alteração: tirar o .fill para poder posicionar a nota preta onde quiser
+                          left: 0, //posicinar ela com o left 0 para ficar mais na esquerda possivel.
                           child: Column(
                             children: _notes.reversed
                                 .where((note) => note.values.first)

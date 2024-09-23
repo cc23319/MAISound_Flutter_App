@@ -16,6 +16,11 @@ double timestamp =
     0.00; // Timestamp da musica em geral (Não é de uma track individual)
 ValueNotifier<bool> playingCurrently = ValueNotifier<bool>(false);
 
+ValueNotifier<bool> recordingCurrently = ValueNotifier<bool>(false);
+
+
+double project_height = 100.0;
+
 // If a track is currently open
 bool inTrack = false;
 Track? currentTrack; // Track selecionada

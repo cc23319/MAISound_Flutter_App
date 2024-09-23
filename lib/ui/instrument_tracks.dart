@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
@@ -13,13 +11,15 @@ class InstrumentTracks extends StatefulWidget {
   _InstrumentTracksState createState() => _InstrumentTracksState();
 }
 
-class _InstrumentTracksState extends State<InstrumentTracks> {
+class _InstrumentTracksState extends State<InstrumentTracks>{
   double _markerPosition = 0.0;
 
   double? initialMouseOffsetX;
   double snapStep = 64;
 
   List<String> availableInstruments = ["Piano", "Bass"];
+
+  bool _isExpanded = true;
 
   void _updateMarkerPosition(double newPosition) {
     setState(() {
@@ -42,6 +42,8 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
       setState(() {
       });
     });
+
+    _isExpanded = true;
 
     // recorder.playOnlyTrack.addListener(() {
     //   setState(() {
@@ -135,8 +137,9 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
               child: Row(
                 children: [
                   // Coluna dos instrumentos
-                  Container(
-                    width: 400,
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 600),
+                    width: _isExpanded? 400 : 200,
                     color: const Color(0xFF1D1D26),
                     child: Column(
                       children: [
@@ -207,19 +210,33 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                                               ],
                                             ),
                                             // Slider de volume
-                                            Slider(
-                                              value: instrument.volume,
-                                              min: 0,
-                                              max: 1,
-                                              //divisions: 0,
-                                              label:
-                                                  '${instrument.volume.round()}',
-                                              onChanged: (newValue) {
-                                                setState(() {
-                                                  instrument.volume = newValue;
-                                                });
-                                              },
-                                            ),
+                                            _isExpanded? Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Slider(
+                                                    value: instrument.volume,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        instrument.volume = value;
+                                                      });
+                                                    },
+                                                    min: 0,
+                                                    max: 1,
+                                                    divisions: 100,
+                                                    label: instrument.volume.toStringAsFixed(2),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.volume_off),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      instrument.volume = 0;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ) : SizedBox(),
                                           ],
                                         ),
                                       ),
@@ -253,6 +270,13 @@ class _InstrumentTracksState extends State<InstrumentTracks> {
                             });
                           },
                         ),
+                        IconButton(
+                          icon: Icon(_isExpanded? Icons.arrow_back : Icons.arrow_forward),
+                        onPressed: () {
+                          setState(() {
+                            _isExpanded = !_isExpanded;
+                          });
+                        }),
                       ],
                     ),
                   ),

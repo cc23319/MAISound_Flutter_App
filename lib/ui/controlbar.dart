@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:maisound/cadastro_page.dart';
 import 'package:maisound/classes/globals.dart';
@@ -14,6 +16,8 @@ class ControlBarWidget extends StatefulWidget {
 class _ControlBarWidget extends State<ControlBarWidget> {
   late TextEditingController _controller;
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
@@ -21,13 +25,32 @@ class _ControlBarWidget extends State<ControlBarWidget> {
 
     // Add a listener to the controller
     _controller.addListener(_onTextChanged);
+
+    _timer = Timer.periodic(Duration(milliseconds: 1), (_) {
+      setState(() {
+        // Atualiza o texto do tempo
+        getTextElapsedTime();
+      });
+    });
+
+
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+    _timer?.cancel();
   }
+
+  String getTextElapsedTime() {
+    return recorder.getElapsedTimeString().toString();
+  }
+  void setTextElapsedTime(double time) {
+    recorder.setElapsedTime(time);
+
+  }
+
 
   // Texto do bpm mudou
   void _onTextChanged() {
@@ -48,6 +71,14 @@ class _ControlBarWidget extends State<ControlBarWidget> {
       }
 
       BPM = value.toDouble();
+    }
+  }
+
+  Icon getPlayIcon() {
+    if (playingCurrently.value) {
+      return const Icon(Icons.pause_circle, color: Colors.white, size: 24);
+    } else {
+      return const Icon(Icons.play_circle, color: Colors.white, size: 24);
     }
   }
 
@@ -134,8 +165,8 @@ class _ControlBarWidget extends State<ControlBarWidget> {
             SizedBox(
               width: 100, // Adjust width as per design
               child: Slider(
-                activeColor: FlutterFlowTheme.of(context).primary,
-                inactiveColor: FlutterFlowTheme.of(context).alternate,
+                activeColor: Colors.black,
+                inactiveColor: Colors.white30,
                 min: 0,
                 max: 1,
                 value: master_volume,
@@ -164,7 +195,13 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                       recorder.setTimestamp(0.0, true);
                     } else {
                       recorder.setTimestamp(0.0, false);
+                      setState(() {
+                        playingCurrently.value = false;//SEMPRE QUE APERTAR BOTÃO DE REWIND, PAUSAR NO INICIO(isso se estiver fora da track)
+                        recorder.stop();
+                        setTextElapsedTime(0.0);
+                    });
                     }
+                    
                   },
                 ),
 
@@ -175,14 +212,11 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   borderWidth: 1,
                   buttonSize: 40,
                   fillColor: const Color(0xFF4B4B5B),
-                  icon: playingCurrently.value
-                      ? const Icon(Icons.pause_circle,
-                          color: Colors.white, size: 24)
-                      : const Icon(Icons.play_circle,
-                          color: Colors.white, size: 24),
+                  icon: getPlayIcon(),
                   onPressed: () {
                     setState(() {
                       playingCurrently.value = !playingCurrently.value;
+                      getTextElapsedTime();
                     });
                   },
                 ),
@@ -194,8 +228,16 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                   borderWidth: 1,
                   buttonSize: 40,
                   fillColor: const Color(0xFF4B4B5B),
-                  icon: const Icon(Icons.loop, color: Colors.white, size: 24),
-                  onPressed: () {},
+                  icon: recordingCurrently.value
+                      ? const Icon(Icons.square, color: Colors.white, size: 24)
+                      : const Icon(Icons.circle,
+                          color: Colors.white, size: 24),
+                  onPressed: () {
+                    setState(() {
+                      recordingCurrently.value = !recordingCurrently.value;
+                    });
+
+                  },
                 ),
 
                 // Tempo
@@ -207,8 +249,8 @@ class _ControlBarWidget extends State<ControlBarWidget> {
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      "00:00:00",
+                    child: Text(
+                      getTextElapsedTime(),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -265,4 +307,6 @@ class _ControlBarWidget extends State<ControlBarWidget> {
       ),
     );
   }
+  
+  
 }

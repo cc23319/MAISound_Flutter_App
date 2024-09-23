@@ -12,7 +12,7 @@ class Recorder {
   // Caso False: Toca o projeto inteiro a partir da timestamp do projeto
   ValueNotifier<bool> playOnlyTrack = ValueNotifier<bool>(false);
 
-  // Timestamp na track atual (É uma posição relativa)
+  // Timestamp na track atual (É uma posição relativa)  TIMESTAMP("TEMPO") DA TRACK
   ValueNotifier<double> currentTimestamp = ValueNotifier<double>(0.0);
 
   // Timestamp no projeto inteiro (É uma posição absoluta)
@@ -20,6 +20,9 @@ class Recorder {
 
   // Este timer serve para dar update no recorder
   Timer? _timer;
+
+  // Tempo decorrido
+  ValueNotifier<double> elapsedTime = ValueNotifier<double>(0.0);
 
   // Notas a serem tocadas e paradas
   List<List<dynamic>> toPlay = []; // [Note, instrumentIndex, startTime]
@@ -35,6 +38,8 @@ class Recorder {
       }
     });
   }
+
+  
 
   // Caso TRUE:  retorna a posição do marcador na track atual (Tempo relativo)
   // Caso FALSE: retorna a posição do marcador no projeto (Tempo absoluto)
@@ -62,8 +67,27 @@ class Recorder {
 
   // Tocando a track... (Usado para descobrir quando uma track mudou de repente)
   Track? playingTheTrack;
+  
+
+  String getElapsedTimeString() {
+    int minutes = (elapsedTime.value / 60).floor();
+    int seconds = (elapsedTime.value % 60).floor();
+    return minutes.toString().padLeft(2, '0') + ":" + seconds.toString().padLeft(2, '0');
+  }
+
+  double getElapsedTime() {
+    return elapsedTime.value;
+  }
+
+  void setElapsedTime(double time) {
+    elapsedTime.value = time;
+  }
+
+
 
   void update() {
+    setElapsedTime(getElapsedTime()+1);
+    
     // Track mudou do nada
     if (playOnlyTrack.value && playingTheTrack != currentTrack) {
       stop();
@@ -116,13 +140,19 @@ class Recorder {
         play();
       }
     }
+    // else{
+    //   if(currentTimestamp.value){//implementar sistema de tamanho de track normal
+    //     stop();
+    //     setTimestamp(0, false);
+    //   }
+    // }      
   }
   
   // Começa a tocar a musica
   void play() {
     stop();
 
-    if (playOnlyTrack.value && currentTrack == null) {
+    if (playOnlyTrack.value && currentTrack == null) { // VERIFICAÇÃO SE EXISTE ALGO PARA TOCAR
       return;
     }
 
@@ -190,6 +220,7 @@ class Recorder {
     });
   }
 
+
   // Para o recorder e limpa algumas listas
   void stop() {
     if (_timer != null && _timer!.isActive) {
@@ -199,5 +230,7 @@ class Recorder {
     toPlay.clear();
     playingNotes.clear();
   }
+
+  
 
 }

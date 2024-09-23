@@ -32,8 +32,8 @@ class MainButton extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10),
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          primary: color,
-          onPrimary: textColor,
+          backgroundColor: color,
+          foregroundColor: textColor,
           elevation: elevation,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
