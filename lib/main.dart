@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maisound/cadastro_page.dart';
 import 'package:maisound/classes/instrument.dart';
 import 'package:maisound/classes/track.dart';
 import 'package:maisound/home_page.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false, title: 'MAISound', home: LoginPage());
+        debugShowCheckedModeBanner: false, title: 'MAISound', home: CadastroPage());
   }
 }
 

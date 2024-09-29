@@ -1,158 +1,99 @@
 import 'package:flutter/material.dart';
+import './services/user_service.dart';
 import 'package:maisound/login_page.dart';
-export 'package:flutterflow_ui/flutterflow_ui.dart';
 
-// Custom Main Button
-// Botão customizado da tela inicial
-class MainButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color color;
-  final Color textColor;
-  final double borderRadius;
-  final double elevation;
-  final Icon icon;
-
-  const MainButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.icon = const Icon(Icons.menu),
-    this.color = const Color.fromARGB(255, 18, 18, 23),
-    this.textColor = const Color.fromARGB(255, 205, 205, 205),
-    this.borderRadius = 15.0,
-    this.elevation = 2.0,
-  });
-
+class CadastroPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: textColor,
-          elevation: elevation,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 14),
-        ),
-        icon: icon,
-        label: Text(
-          text,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 16,
-          ),
-        ),
-        onPressed: onPressed,
-      ),
-    );
-  }
+  _CadastroPageState createState() => _CadastroPageState();
 }
 
-// Página de Cadastro
-class CadastroPage extends StatelessWidget {
-  const CadastroPage({super.key});
+class _CadastroPageState extends State<CadastroPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final UserService _userService = UserService();
+
+  void _register() async {
+    try {
+      var response = await _userService.registerUser(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      );
+      print('Usuário registrado: $response');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } catch (e) {
+      print('Erro ao registrar: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Sign Up",
-      theme: ThemeData(scaffoldBackgroundColor: Color.fromARGB(255, 48, 48, 71)),
-      home: Scaffold(
-        body: Padding(
+    return Scaffold(
+      backgroundColor: Color(0xFF333441), // Cor de fundo
+      body: Center(
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          width: double.infinity, // Para ocupar toda a largura
+          constraints: BoxConstraints(maxWidth: 400), // Limitar a largura
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Logo or Title
-              Text(
-                'Cadastro',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 48.0),
-
-              // Name Field
+              // Campos de texto e botão de cadastro aqui
               TextField(
+                controller: _nameController,
                 decoration: InputDecoration(
+                  hintText: 'User',
                   filled: true,
                   fillColor: Colors.white,
-                  hintText: 'Usurio',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
               ),
               SizedBox(height: 16.0),
-
-              // Email Field
               TextField(
-                keyboardType: TextInputType.emailAddress,
+                controller: _emailController,
                 decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
                   hintText: 'Email',
+                  filled: true,
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
               ),
               SizedBox(height: 16.0),
-
-              // Password Field
               TextField(
-                obscureText: true,
+                controller: _passwordController,
                 decoration: InputDecoration(
+                  hintText: 'Password',
                   filled: true,
                   fillColor: Colors.white,
-                  hintText: 'Senha',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-              ),
-              SizedBox(height: 16.0),
-
-              // Confirm Password Field
-              TextField(
                 obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Confirme a senha',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
               ),
               SizedBox(height: 24.0),
-
-              // Sign Up Button
-              MainButton(
-                text: "Sign Up",
-                icon: Icon(Icons.person_add),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginPage(),
-                    ),
-                  );
-                },
+              ElevatedButton(
+                onPressed: _register,
+                child: Text('Sing Up'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Cor do botão
+                  padding: EdgeInsets.symmetric(vertical: 14.0),  
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
               ),
-
               SizedBox(height: 16.0),
-
-              // "Já tem uma conta? Faça login" Link
+              // Link para Login
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -160,13 +101,11 @@ class CadastroPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => LoginPage()),
                   );
                 },
-                child: Center(
-                  child: Text(
-                    "Já tem uma conta? Faça login",
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.underline,
-                    ),
+                child: Text(
+                  "Já tem cadastro? Faça login",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
