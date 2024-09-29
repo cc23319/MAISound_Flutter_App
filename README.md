@@ -1,6 +1,6 @@
 # MAISound
 
-MAISound é um projeto de TCC inovador que permite aos usuários criar suas próprias músicas com o auxílio de inteligência artificial. Nossa plataforma foi desenvolvida utilizando Flutter e Dart, oferecendo uma interface amigável e intuitiva para músicos e compositores, independentemente do nível de habilidade. O objetivo do MAISound é democratizar a criação musical, proporcionando ferramentas poderosas que estimulam a criatividade e a experimentação.
+MAISound é um projeto de Trabalho de conclusão de curso do Colégio Técnico de Campinas. Nesse Projeto os usuários poderam criar suas próprias músicas com o auxílio de inteligência artificial. Nossa plataforma foi desenvolvida utilizando Flutter e Dart, oferecendo uma interface amigável e intuitiva para músicos e compositores, independentemente do nível de habilidade. O objetivo do MAISound é democratizar a criação musical, proporcionando ferramentas poderosas que estimulam a criatividade e a experimentação.
 
 ## Colaboradores
 
