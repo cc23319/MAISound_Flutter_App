@@ -1,151 +1,115 @@
 import 'package:flutter/material.dart';
-export 'package:flutterflow_ui/flutterflow_ui.dart';
 import 'package:maisound/home_page.dart';
+import './services/user_service.dart';
 import 'package:maisound/cadastro_page.dart';
 
-// Custom Main Button
-// Botão customizado da tela inicial
-class MainButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color color;
-  final Color textColor;
-  final double borderRadius;
-  final double elevation;
-  final Icon icon;
-
-  const MainButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.icon = const Icon(Icons.menu),
-    this.color = const Color.fromARGB(255, 18, 18, 23),
-    this.textColor = const Color.fromARGB(255, 205, 205, 205),
-    this.borderRadius = 15.0,
-    this.elevation = 2.0,
-  });
-
+class LoginPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: textColor,
-          elevation: elevation,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 14),
-        ),
-        icon: icon,
-        label: Text(
-          text,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 16,
-          ),
-        ),
-        onPressed: onPressed,
-      ),
-    );
-  }
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final UserService _userService = UserService();
+
+  void _login() async {
+    try {
+      var response = await _userService.loginUser(
+        _emailController.text,
+        _passwordController.text,
+      );
+      print('Usuário logado: $response');
+      // Aqui você pode salvar o token e navegar para outra página
+    } catch (e) {
+      print('Erro ao fazer login: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Login",
-      theme: ThemeData(scaffoldBackgroundColor: Color.fromARGB(255, 48, 48, 71)),
-      home: Scaffold(
-        body: Padding(
+    return Scaffold(
+      backgroundColor: Color(0xFF333441), // Cor de fundo
+      body: Center(
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Center( // Centraliza o conteúdo
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400), // Limita a largura
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center, // Centraliza na horizontal
-                children: [
-                  // Logo or Title
-                  Text(
-                    'Login',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+          width: double.infinity, // Para ocupar toda a largura
+          constraints: BoxConstraints(maxWidth: 400), // Limitar a largura
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Campos de texto e botão de login aqui
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  SizedBox(height: 48.0),
-
-                  // Email Field
-                  TextField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Password Field
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Senha',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24.0),
-
-                  // Login Button
-                  MainButton(
-                    text: "Login",
-                    icon: Icon(Icons.login),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomePage(),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // "Não tem uma conta? Cadastre-se" Link
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CadastroPage()),
-                      );
-                    },
-                    child: Text(
-                      "Não tem uma conta? Cadastre-se",
-                      style: TextStyle(
-                        color: Colors.white,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                onPressed: () async {
+                  String email = _emailController.text;
+                  String password = _passwordController.text;
+
+                  // Chama o serviço para fazer login
+                  var response = await _userService.loginUser(email, password);
+
+                  if (response != null) {
+                    // Redireciona para a HomePage após o login
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  } else {
+                    // Lógica para tratar erro de login, como exibir uma mensagem
+                  }
+                },
+                child: Text('Login'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Cor do botão
+                  padding: EdgeInsets.symmetric(vertical: 14.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              // Link para Cadastro
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CadastroPage()),
+                  );
+                },
+                child: Text(
+                  "Não tem cadastro? Crie uma conta",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
