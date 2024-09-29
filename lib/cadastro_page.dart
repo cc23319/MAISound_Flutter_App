@@ -83,7 +83,7 @@ class _CadastroPageState extends State<CadastroPage> {
               SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: _register,
-                child: Text('Sing Up'),
+                child: Text('Create'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue, // Cor do botão
                   padding: EdgeInsets.symmetric(vertical: 14.0),  
