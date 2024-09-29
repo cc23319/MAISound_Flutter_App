@@ -25,5 +25,5 @@ MAISound é um projeto de TCC inovador que permite aos usuários criar suas pró
    ```bash
    flutter pub get
 4. **Execute o programa**
-  ```bash
-  flutter run
+   ```bash
+   flutter run
