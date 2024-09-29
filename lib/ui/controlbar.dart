@@ -6,6 +6,8 @@ import 'package:maisound/classes/globals.dart';
 import 'package:maisound/project_page.dart';
 import 'package:maisound/track_page.dart';
 
+import '../home_page.dart';
+
 class ControlBarWidget extends StatefulWidget {
   const ControlBarWidget({super.key});
 
