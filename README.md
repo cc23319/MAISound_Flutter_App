@@ -8,7 +8,7 @@
 
 2. **Clone o Repositório**:
    ```bash
-   git clone https://github.com/seu-usuario/MAISound.git
+   git clone https://github.com/MAISound/MAISound_Flutter_App.git
    cd MAISound
 
 3. **Baixe as depências**
