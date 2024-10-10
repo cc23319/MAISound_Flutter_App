@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
 
                   _saveProjects(); // Salva o projeto criado.
 
-                  await saveProjectToDatabase(projectName!); // Salva no MongoDB
+                  //await saveProjectToDatabase(projectName!); // Salva no MongoDB
 
                   Navigator.of(context).pop(); // Fecha a caixa de diálogo.
                 }
@@ -200,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    
+
                     // Botão de Novo Projeto
                     Column(
                       mainAxisSize: MainAxisSize.min,

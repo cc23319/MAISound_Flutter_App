@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:maisound/classes/globals.dart';
 import 'package:maisound/classes/instrument.dart';
@@ -18,21 +16,20 @@ class TrackPageWidget extends StatefulWidget {
 
 class _TrackPageWidgetState extends State<TrackPageWidget> {
   // Debug
-  late Track track = widget.track;//Track(inst);
+  late Track track = widget.track; //Track(inst);
   late Instrument inst = track.instrument;
 
-  // Desabilita clique com botão direito de abrir a janela padrão 
+  // Desabilita clique com botão direito de abrir a janela padrão
   @override
   void initState() {
     currentTrack = widget.track;
-    
+
     // Só é possivel deste if acontecer se voce abrir diretamente esta pagina
     inTrack = true;
     super.initState();
 
     //recorder.setTrack(track);
     // Prevent default event handler
-    document.onContextMenu.listen((event) => event.preventDefault());
   }
 
   @override
