@@ -58,6 +58,11 @@ class _InstrumentTracksState extends State<InstrumentTracks>{
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   // Notes that are being played currently
   // List<Note> playing_notes = [];
   // void _updateMarkerPosition(double newPosition) {
